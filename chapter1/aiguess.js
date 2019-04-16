@@ -1,7 +1,7 @@
-/*  Program should find a number between MAX and MIN.
+/*
+    Program should find a number between MAX and MIN.
     Recursive binary search is used
  */
-
 
 //The number to guess is passed as a command line argument.
 let res = parseInt(process.argv[2]);
