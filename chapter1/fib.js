@@ -1,13 +1,6 @@
-
 const fib = nb => {
-  if(nb === 1  ) {
-      return 1;
-  }
-  else if(nb === 2 ) {
-      return 1;
-  }
-  else
-      return fib(nb - 1) + fib(nb -2);
+  if(nb === 1 || nb === 2 ) return 1;
+  return fib(nb - 1) + fib(nb -2);
 };
 
 let res = [];

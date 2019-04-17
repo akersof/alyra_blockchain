@@ -4,7 +4,7 @@ const hachage = str => {
     condensat = (condensat + str.charCodeAt(i) * 3** i) % 65536
   }
   return condensat 
-}
+};
 
 
 const minage =  (str, target) => {
