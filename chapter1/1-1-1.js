@@ -17,11 +17,12 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-console.log('#############################################');
-console.log('# GUESS MY NUMBER (ex 1.1.1 /Alyra course)  #');
-console.log('#############################################');
-if(DEBUG_MODE)
-    console.log(`DEBUG: secret = ${SECRET}`);
+const isBurning = nb => {
+    if(Math.abs(nb - SECRET) <= 5)
+        console.log("You are burning!");
+    else if(Math.abs(nb - SECRET) <= 10)
+        console.log("It is hot!");
+};
 
 //Recursive game loop.
 const game = (turn) => {
@@ -39,10 +40,12 @@ const game = (turn) => {
         }
         else if(nb > SECRET) {
             console.log(`${nb} is too high`);
+            isBurning(nb);
             game(++turn);
         }
         else if(nb < SECRET) {
             console.log(`${nb} is too low`);
+            isBurning(nb);
             game(++turn);
         }
         else if(nb === SECRET) {
@@ -56,6 +59,13 @@ const game = (turn) => {
         }
     });
 };
+
+
+console.log('#############################################');
+console.log('# GUESS MY NUMBER (ex 1.1.1 /Alyra course)  #');
+console.log('#############################################');
+if(DEBUG_MODE)
+    console.log(`DEBUG: secret = ${SECRET}`);
 
 //Launch the game here
 game(0);
