@@ -30,17 +30,4 @@ const transactionMap = new Map([
     [600, 1500]
 ]);
 
-const parseMap = map => {
-    let total = 0;
-    
-};
-
-const something = map => {
-    map.delete(2000);
-};
-
-//something(transactionMap);
-for(const [key, value] of transactionMap) {
-    console.log(`${key}: ${value}`);
-}
 console.log(transactionMap.keys());
