@@ -17,7 +17,7 @@ Quelle est sa complexité ?
 
 const BLOC_SIZE = 6000;
 
-// raw data saved in a Map data structure. Map is a good alternative to Object literal as type of keys
+// raw data saved in a Map data structure. Map is a good alternative to Object literals as type of keys
 // is not converted to string. key is a transaction size in bytes and value is the reward in satoshis
 const transactionMap = new Map([
     [2000, 13000],
@@ -30,24 +30,56 @@ const transactionMap = new Map([
     [600, 1500]
 ]);
 
-//A transaction is defined by a size, a reward and a ratio satoshis/bits
+//A transaction is defined by a size in byte, a reward in satoshis and a ratio satoshis/byte
 class Transaction {
     constructor(size, reward){
         this.size = size;
         this.reward = reward;
-        this.ratio = reward / size; // Higher is the ratio, better is our transaction!
+        this.ratio = reward / size; // Higher is the ratio, better is our transaction! useful for solution 2
     }
 }
 
-//Fill up a transactions list with Transaction object constructed with data from transactionMap
-const transactions = Array.from(transactionMap.entries()).map(([size, reward]) => new Transaction(size, reward));
+//Fill up a list with all known transactions with Transaction objects constructed with data from transactionMap
+const transactions =
+    Array.from(transactionMap.entries()).map(([size, reward]) => new Transaction(size, reward));
 
+//Get the current size in bytes of a list of Transaction objects
+const getCurrentSize = transactionList => {
+    return transactionList.reduce((acc, curr) => acc + curr.size);
+}
 /*
     Solution 1:
-    Try all the possible combinations and take the one with the higher reward
+    Try all the possible combinations and take the one with the highest reward
     If we found more than 1 solutions, take the one with the less transactions.
-    We use recursive binary search for this.
+    We use recursive binary search for this. The complexity of this algorithm is O(2^n)
+ */
+const SOL1_COMPLEXITY = "O(2^n)";
+
+// First find all the possible combinations
+// A combination is a list of possible transactions
+// The total size in bytes of all the transactions for 1 combination has to be less or equal to 6000
+/*const findCombinations = transactions => {
+    //helper function for passing our data across the recursive call. This way we avoid global variables
+    //acc is the accumulation of all combinations found, remaining is the rest of the possible transactions.
+    const go = (acc, remaining) => {
+        //Terminal case
+        if(remaining.length === 0 || acc.reduce((acc, curr) => acc + curr.size) > 6000) // need to remove last?
+            return acc;
+        else
+            acc.push()
+    };
+    return go([], transactions)
+};
+
+const combinations = findCombinations(transactions);
+
+
  */
 
-
+/*
+    Solution 2:
+    Our optimal solution should use first the transactions with the highest satoshis/reward.
+    The remaining bytes in our 6K bloc bla bla bla... to continue
+ */
 console.log(transactions);
+console.log(getCurrentSize(transactions));
