@@ -25,7 +25,7 @@
 // Computing each power can be done efficiently using repeated squaring, and then the factors are multiplied together.
 
 // Find all prime number between 2 and n, using the well known Sieve of Eratosthenes.
-// function sieve take a number n and return a list of prime numbers between 2 and n
+// function primeList take a number n and return a list of prime numbers between 2 and n
 const primeList = n => {
     //n is not number or is negative? go away!
     if(Number.isNaN(n) || n < 0) return;
@@ -42,6 +42,23 @@ const primeList = n => {
     return go(nbList, 0);
 };
 
+//Find the prime factorization of a number
+//function take a number as parameter and return a list of prime factors
+const primeFactorization = n => {
+    const primes = primeList(n);
+    const go = (acc, remainder) => {
+        //our remainder is prime no need to continue
+        if(primes.includes(remainder)) {
+            return [...acc, remainder]; // i know... but i like immutable data. GG es6 for this awful syntax.
+        //remainder is not prime so we need to find a prime factor and continue recursion.
+        } else {
+            const primeFactor = primes.find((elem) => remainder % elem === 0);
+            return go([...acc, primeFactor], remainder / primeFactor);
+        }
+    };
+    return go([], n);
+};
+
 const factorial = n => {
     if(Number.isNaN(n) || n < 0) return;
     //Helper function for tail recursive call
@@ -55,3 +72,5 @@ const factorial = n => {
 const n = parseInt(process.argv[2]);
 const primes = primeList(n);
 console.log(primes);
+console.log(`prime factor of ${n}:`);
+console.log(primeFactorization(n));
