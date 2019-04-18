@@ -57,22 +57,21 @@ const getCurrentReward = transactionList => {
 /*
     Solution 1:
     Try all the possible combinations and take the one with the highest reward
-    If we found more than 1 solutions, take the one with the less transactions.
+    #TODO: If we found more than 1 solutions, take the one with the less transactions.
     We use recursive binary search for this. The complexity of this algorithm is O(2^n)
  */
 const SOL1_COMPLEXITY = "O(2^n)";
-
 // First find all the possible combinations
 // A combination is a list of possible transactions
 // The total size in bytes of all the transactions for 1 combination has to be less or equal to 6000
-const findCombinations = transactions => {
+const findCombination = transactions => {
     //helper function for passing our data across the recursive call. This way we avoid global variables
-    //acc is the accumulation of all combinations found, remaining is the rest of the possible transactions.
+    //acc is the accumulation of all transactions found for 1 combination, remaining is the rest of the possible transactions.
     const go = (acc, remaining) => {
-        //console.log(acc);
-        //Terminal case
+        //Terminal cases
         if(getCurrentSize(acc) > MAX_BLOC_SIZE) return acc.slice(0, -1);
         else if(remaining.length === 0) return acc;
+        //step for recursion
         else {
             let a = go([...acc, remaining[0]], remaining.slice(1));
             let b = go ([...acc], remaining.slice(1));
@@ -82,15 +81,38 @@ const findCombinations = transactions => {
     return go([], transactions);
 };
 
-const combinations = findCombinations(transactions);
-console.log(combinations);
-console.log(getCurrentReward(combinations));
-console.log(getCurrentSize(combinations));
+console.log("###########################################");
+console.log(`Solution 1 => complexity ${SOL1_COMPLEXITY}`);
+const combination = findCombination(transactions);
+console.log(`The best combination is ${JSON.stringify(combination)}`);
+console.log(`Reward: ${getCurrentReward(combination)}`);
+console.log(`Bloc size used: ${getCurrentSize(combination)}/${MAX_BLOC_SIZE} bytes`);
+console.log("###########################################");
+
 
 /*
     Solution 2:
-    Our optimal solution should use first the transactions with the highest satoshis/reward.
-    The remaining bytes in our 6K bloc bla bla bla... to continue
+    Our optimal solution should use first the transactions with the highest satoshis/reward ratio.
+    #TODO: We can also optimize more by checking if the remaining bytes can give us more reward by dropping
+    #the last transaction and check if the addition of remaining transactions can give more reward by filling more space
  */
-//console.log(transactions);
-//console.log(getCurrentSize(transactions));
+
+//Find combination on a sorted list of transactions (highest ratio to lowest)
+const findCombinationOpti = sortedTransactions => {
+    const go = (acc, remaining) => {
+        if(getCurrentSize(acc) > MAX_BLOC_SIZE) return acc.slice(0, -1);
+        else if(remaining.length === 0) return acc;
+        else return go([...acc, remaining[0]], remaining.slice(1));
+    };
+    return go([], sortedTransactions);
+};
+console.log('\n');
+console.log("###########################################");
+console.log("SOLUTION 2 with optimization: (we can still optimize more using special exceptions applied to our problem)");
+//Sorting from highest satoshis/bytes ratio to lower
+transactionsSorted = transactions.sort((fst, snd) => snd.ratio - fst.ratio);
+const combinationOpti = findCombinationOpti(transactionsSorted);
+console.log(`The combination with a generic optimization is ${JSON.stringify(combinationOpti)}`);
+console.log(`Reward: ${getCurrentReward(combinationOpti)}`);
+console.log(`Bloc size used: ${getCurrentSize(combinationOpti)}/${MAX_BLOC_SIZE} bytes`);
+console.log("###########################################");
