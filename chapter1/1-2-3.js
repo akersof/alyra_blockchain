@@ -59,6 +59,16 @@ const primeFactorization = n => {
     return go([], n);
 };
 
+//Here the optimized factorial function
+const factorialFast = n => {
+    if(Number.isNaN(n) || n < 0) return;
+    let factorList = [];
+    for(let i = 2; i <= n; i++)
+        factorList = factorList.concat(primeFactorization(i));
+    return factorList.reduce((acc, curr) => acc * curr);
+};
+
+// Here the naive factorial function
 const factorial = n => {
     if(Number.isNaN(n) || n < 0) return;
     //Helper function for tail recursive call
@@ -69,8 +79,17 @@ const factorial = n => {
 };
 
 //Test factorial
+// #TODO: TEST time of execution between a naive factorial and a normal factorial
 const n = parseInt(process.argv[2]);
-const primes = primeList(n);
-console.log(primes);
-console.log(`prime factor of ${n}:`);
-console.log(primeFactorization(n));
+//const primes = primeList(n);
+//console.log(primes);
+//console.log(`prime factor of ${n}:`);
+//console.log(primeFactorization(n));
+let start = new Date();
+console.log(factorial(n));
+let end = new Date() - start;
+console.log('Execution time: %dms', end);
+start = new Date();
+console.log(factorialFast(n));
+end = new Date() - start;
+console.log('Execution time: %dms', end);
