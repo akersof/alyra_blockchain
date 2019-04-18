@@ -15,7 +15,7 @@ Quelle est sa complexité ?
 --
 */
 
-const BLOC_SIZE = 6000;
+const MAX_BLOC_SIZE = 6000;
 
 // raw data saved in a Map data structure. Map is a good alternative to Object literals as type of keys
 // is not converted to string. key is a transaction size in bytes and value is the reward in satoshis
@@ -45,8 +45,15 @@ const transactions =
 
 //Get the current size in bytes of a list of Transaction objects
 const getCurrentSize = transactionList => {
-    return transactionList.reduce((acc, curr) => acc + curr.size);
-}
+    if(transactionList.length === 0 ) return 0;
+    return transactionList.map(el => el.size).reduce((acc, curr) => acc + curr);
+};
+
+//Get the current reward in satoshis of a list of Transaction Objects
+const getCurrentReward = transactionList => {
+    if(transactionList.length === 0) return 0;
+    return transactionList.map(el => el.reward).reduce((acc, curr) => acc + curr);
+};
 /*
     Solution 1:
     Try all the possible combinations and take the one with the highest reward
@@ -58,28 +65,32 @@ const SOL1_COMPLEXITY = "O(2^n)";
 // First find all the possible combinations
 // A combination is a list of possible transactions
 // The total size in bytes of all the transactions for 1 combination has to be less or equal to 6000
-/*const findCombinations = transactions => {
+const findCombinations = transactions => {
     //helper function for passing our data across the recursive call. This way we avoid global variables
     //acc is the accumulation of all combinations found, remaining is the rest of the possible transactions.
     const go = (acc, remaining) => {
+        //console.log(acc);
         //Terminal case
-        if(remaining.length === 0 || acc.reduce((acc, curr) => acc + curr.size) > 6000) // need to remove last?
-            return acc;
-        else
-            acc.push()
+        if(getCurrentSize(acc) > MAX_BLOC_SIZE) return acc.slice(0, -1);
+        else if(remaining.length === 0) return acc;
+        else {
+            let a = go([...acc, remaining[0]], remaining.slice(1));
+            let b = go ([...acc], remaining.slice(1));
+            return getCurrentReward(a) > getCurrentReward(b) ? a : b;
+        }
     };
-    return go([], transactions)
+    return go([], transactions);
 };
 
 const combinations = findCombinations(transactions);
-
-
- */
+console.log(combinations);
+console.log(getCurrentReward(combinations));
+console.log(getCurrentSize(combinations));
 
 /*
     Solution 2:
     Our optimal solution should use first the transactions with the highest satoshis/reward.
     The remaining bytes in our 6K bloc bla bla bla... to continue
  */
-console.log(transactions);
-console.log(getCurrentSize(transactions));
+//console.log(transactions);
+//console.log(getCurrentSize(transactions));
