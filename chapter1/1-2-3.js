@@ -33,7 +33,7 @@ const primeList = n => {
     const nbList = Array.from({length: n}, (v, k) => k + 1).slice(1);
     //we recursively drop non prime numbers from nbList
     const go = (acc, currIndex) => {
-        if(currIndex > acc.length - 1) return acc; // #TODO: we can customize with < Math.sqrt(n) in theory
+        if(currIndex > acc.length - 1) return acc;
         else {
             const rest = acc.filter(elem => elem === acc[currIndex] || elem % acc[currIndex] !== 0);
             return go(rest, ++currIndex);
