@@ -66,6 +66,7 @@ const factorialMedium = n => {
 };
 
 // TODO: this is the best version of the factorial function but enough time to finish.
+// See notes and paper https://oeis.org/A000142/a000142.pdf, its contains pseudo code and a working example in python.
 // Find all prime number between 2 and n, using the well known Sieve of Eratosthenes.
 // function primeList take a number n and return a list of prime numbers between 2 and n
 const primeList = n => {
