@@ -18,12 +18,54 @@
 // First, we should use a tail recursive function. This way we don't need to pop out the stack backward when we reach
 // a terminal case. Tail recursive function gives good hints to compilers for optimizations. Tail recursive
 // functions are written with the help of an helper function, often written in the scope of function we want to recurse on.
+// BUT in REAL WORLD, if we want to get the best score in execution time we should not use recursion if the language
+// doesn't optimize it and translate into imperative machine code. Haskell is a good language for this because it
+//doesn't use a call stack for performing recursion.
 
-// Second, The best algorithm to express factorial is known. I am not a mathematician so i will just implement it.
-// The method is described in http://www.cecm.sfu.ca/personal/pborwein/PAPERS/P29.pdf.
+// Second, The best algorithm to express factorial is known and called the dsc factorization (for divide swing and conquer).
+// I am not a mathematician so i will just implement it.
+// The method is described in http://www.cecm.sfu.ca/personal/pborwein/PAPERS/P29.pdf and well documented in
+// https://oeis.org/A000142/a000142.pdf
 // In short we can quickly determine the primes as well as the right power for each prime using a sieve approach.
 // Computing each power can be done efficiently using repeated squaring, and then the factors are multiplied together.
 
+
+// The naive factorial function
+const factorialNaive = n => {
+    if(Number.isNaN(n) || n < 0) return;
+    //Helper function for tail recursive call
+    const go = (acc, n) => {
+        return n === 1 || n === 0 ? acc : go(acc * n, n - 1);
+    };
+    return go(1, n);
+};
+
+//Return the list of all odd number from 1 to n
+const oddList = n => {
+  return Array.from({length: n}, (v, k) => k + 1).filter(nb => nb % 2 !== 0);
+};
+
+// The medium factorial as explained in course 1.2.2
+// Better than the naive factorial, but still not the best algorithm.
+const factorialMedium = n => {
+    //little function for getting the product of all odd numbers between [1..n]
+    const oddProduct = n => {
+        if(n === 0) return 0;
+        let res = 1;
+        n % 2 === 0 ? --n : n;
+        for (let i = 1; i <= n; i += 2)
+            res *= i;
+        return res;
+    };
+    if(Number.isNaN(n) || n < 0) return;
+    const go = (acc, n) => {
+        //unfortunately we need bignum library for performing painless bitwise operation.
+        return n === 1 || n === 0 ? acc : go(acc * oddProduct(n) * Math.pow(2, Math.floor(n / 2)), Math.floor(n / 2));
+    };
+    return go(1, n);
+};
+
+// TODO: this is the best version of the factorial function but enough time to finish.
 // Find all prime number between 2 and n, using the well known Sieve of Eratosthenes.
 // function primeList take a number n and return a list of prime numbers between 2 and n
 const primeList = n => {
@@ -59,37 +101,15 @@ const primeFactorization = n => {
     return go([], n);
 };
 
-//Here the optimized factorial function
-const factorialFast = n => {
-    if(Number.isNaN(n) || n < 0) return;
-    let factorList = [];
-    for(let i = 2; i <= n; i++)
-        factorList = factorList.concat(primeFactorization(i));
-    return factorList.reduce((acc, curr) => acc * curr);
-};
 
-// Here the naive factorial function
-const factorial = n => {
-    if(Number.isNaN(n) || n < 0) return;
-    //Helper function for tail recursive call
-    const go = (acc, n) => {
-        return n === 1 || n === 0 ? acc : go(acc * n, n - 1);
-    };
-    return go(1, n);
-};
-
-//Test factorial
-// #TODO: TEST time of execution between a naive factorial and a normal factorial
+//Test  our factorial
 const n = parseInt(process.argv[2]);
-//const primes = primeList(n);
-//console.log(primes);
-//console.log(`prime factor of ${n}:`);
-//console.log(primeFactorization(n));
-let start = new Date();
-console.log(factorial(n));
-let end = new Date() - start;
-console.log('Execution time: %dms', end);
-start = new Date();
-console.log(factorialFast(n));
-end = new Date() - start;
-console.log('Execution time: %dms', end);
+let start = process.hrtime();
+let res = factorialNaive(n);
+let end =  process.hrtime(start);
+console.log(`factorialNaive(${n})      = ${res} => Execution time: ${end[0]}s ${end[1] / 1000000}ms`);
+
+start = process.hrtime();
+res = factorialMedium(n);
+end = process.hrtime(start);
+console.log(`factorialMedium(${n})     = ${res} => Execution time: ${end[0]}s ${end[1] / 1000000}ms`);
