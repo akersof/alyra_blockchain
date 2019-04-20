@@ -13,46 +13,86 @@
 
         33 BTC -> 16 LTC (1 BTC = 0.48 LTC)
 
- A classical graph theory problem. This is a Weighted directed cyclic graph
+ A classical graph theory problem. This is a Weighted undirected cyclic graph
  */
 
-//As we don't have so many edges lets represent our graph in adjaceny List
-class Vertex {}
 
+const DOGE = 0;
+const ETH = 1;
+const LTC = 2;
+const BTC = 3;
 
-class Edge {
-    constructor(vertexSrc, vertexDst, ratio) {
-        this.src = vertexSrc;
-        this.dst = vertexDst;
-        this.ratio = ratio;
-    }
+const strMap = {
+    0: "DOGE",
+    1: "ETH",
+    2: "LTC",
+    3: "BTC"
+};
+
+const adjMat = [
+    // Doge, ETH, LTC, BTC
+    [1 , 2.75, 0.381, 1 / 1.7], // Doge
+    [1 / 2.75, 1, 1 / 8, 0.206], // ETH
+    [1 / 0.381, 8, 1, 1 / 0.48], // LTC
+    [1.7, 1 / 0.206, 0.48, 1], // BTC
+];
+
+//if a child node is already visited we can still go on, but we have convert back to our root node next :)
+//take a matrix/graph , a starting node and perform a DFS.
+// This function return a list containing the max reward, and an object with string of transaction as key, and reward as value.
+const dfs = (matrix, root) => {
+    const currencies = 100;
+    const visited= {0: false, 1: false, 2: false, 3: false};
+    //log all possible transactions and the benefit we made
+    let log = {};
+    const go = (node,parent, visited, coins, history) => {
+        //if(node === root && visited[root] === true) return coins;
+        if(node === root && parent !== null) {
+            history += ` -> ${strMap[root]} from ${currencies} to ${coins} ${strMap[root]}`;
+            log[history] = coins;
+            return coins;
+        }
+        else if(visited[node] === true) {
+            coins *= matrix[node][root];
+            history += ` -> ${strMap[node]} -> ${strMap[root]} from ${currencies} to ${coins} ${strMap[root]}`;
+            log[history] = coins;
+            return coins;
+        }
+        else {
+            visited[node] = true;
+            if(node !== root) history += ` -> ${strMap[node]}`;
+            const childs = [DOGE, ETH, LTC, BTC].filter(elem => elem !== node &&  elem !== parent);
+            parent = node;
+            let best =  Math.max(...childs.map(
+                elem => go(elem, parent, {...visited}, coins * matrix[node][elem], history )
+            ));
+            return best;
+        }
+    };
+    return [go(root,  null,{...visited}, currencies, `${strMap[root]}`), log];
+};
+
+//little helper function for finding a key by value in an object:
+function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
 }
 
-class Graph {
-    constructor(){
-        this.adjList = {};
-    }
-    addVertex(vertex) {
-        this.adjList[vertex] = []
-    }
-    addEdge(vertexSrc, vertexDst, ratio) {
-        this.adjList[vertexSrc].push({dst: vertexDst, ratio: ratio});
-    }
-}
+//let [maxDoge, logDoge] = dfs(adjMat, DOGE);
+let [maxDoge, logDoge] = dfs(adjMat, DOGE);
+let [maxETH, logETH] = dfs(adjMat, ETH);
+let [maxLTC, logLTC] = dfs(adjMat, LTC);
+let [maxBTC, logBTC] = dfs(adjMat, BTC);
+console.log("The best transactions for each currencies: ");
+console.log("Starting with 100 Doge: ");
+console.log(`\t${getKeyByValue(logDoge, maxDoge)} ratio: ${maxDoge / 100}`);
+console.log("Starting with 100 ETH: ");
+console.log(`\t${getKeyByValue(logETH, maxETH)} ratio: ${maxETH / 100}`);
+console.log("Starting with 100 LTC: ");
+console.log(`\t${getKeyByValue(logLTC, maxLTC)} ratio: ${maxLTC / 100}`);
+console.log("Starting with 100 BTC: ");
+console.log(`\t${getKeyByValue(logBTC, maxBTC)} ratio: ${maxBTC / 100}`);
 
-const graph = new Graph();
-
-graph.addVertex('Doge');
-graph.addVertex('ETH');
-graph.addVertex('LTC');
-graph.addVertex('BTC');
-
-graph.addEdge('Doge', 'LTC', 0.381);
-graph.addEdge('Doge', 'ETH', 2.75);
-graph.addEdge('ETH', 'BTC', 0.206);
-graph.addEdge('LTC', 'ETH', 8);
-graph.addEdge('BTC', 'Doge', 1.7);
-graph.addEdge('BTC', 'LTC', 0.48);
-
-console.log(JSON.stringify(graph));
+// To solve the problem we could start from each node with a starting amount, do a breadth-first traversal or
+// depth-first traversal, and check the benefits or losses we made. But this is a cyclic graph so we need a detect cycles.
+// The best paths should be the paths with the higher benefits.
 
