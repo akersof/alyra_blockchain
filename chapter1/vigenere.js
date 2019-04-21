@@ -29,8 +29,6 @@ const chunkString = (str, size) => {
     return str.match(new RegExp('.{1,' + size + '}', 'g'));
 };
 
-//Resolution of Training C is equivalent to chunkString(sanitize(str), n);
-
 //Encrypt using Vigenere cypher
 const encVigenere = (str, key) => {
     let encStr = "";
