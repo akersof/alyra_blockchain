@@ -1,4 +1,5 @@
-//Exercise: create a hash table of size 8 to access data
+// Exercise: create a hash table of size 8 to access data
+// The hash table has to be of size 8, so i use linked list separate chaining insertion for ou 16 entries
 
 const HASH_TABLE_SIZE = 8;
 
