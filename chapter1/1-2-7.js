@@ -35,7 +35,7 @@ class LinkedData {
 
 //our hash table; Idealy our hashTable should just contain indexes to a database/array
 class HashTable {
-    constructor(data=null){
+    constructor(){
         this.table = new Array(HASH_TABLE_SIZE).fill(null);
     }
     //returns true if insertions is successful;
