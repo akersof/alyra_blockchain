@@ -1,3 +1,5 @@
+// #TODO: Use a french dictionary to automatize the check of the cleared text obtain in training D.
+
 //take a character apply caesar cipher
 const rotate = (char, n) => {
     if(n < 0) return rotate(char, n + 26);
@@ -64,7 +66,7 @@ const regroup = (str, n) => {
     return grp;
 };
 
-//training D:
+//Training D: decypher message:
 let secret =
     "PVADGHFLSHPJNPLUVAGXVVRBRUKCGXEVQINPVBXLVZLRMKFLSXEZQXOGCCHXEICIXUKSCXKEDDKORRXHPHSXGGJRRHPESTJWVBTJWVJFNGJSCLQ" +
     "LBJGUVSATNRJXFKKCBTKJOJXEVJJBQLATNZHSXECUCIBGELTGVGCJOGERPMQLRBHOVLIKGMCAXTCCHXEICIXUKYRVGJQXUNVYIHWJATLVSGTGRFSGJ" +
@@ -78,6 +80,51 @@ let secret =
     "FJFCZLTMEVQIIQLPFNQZDXWGCCPLCMMRTVZMCECGPDUNVKPMKJYIBQEJPKGWJTQKFLEAKCMHHRYGFNGZLIXTIMVXNVQTVTVRXGVVPGHIVJWNOR" +
     "LXMGUSHXEICILKTCITKKSCFAJRTKGVJAXPVJXGVVPGHIVPPBVGYHEGDWHMGICCXUKNPLWECRTVVEDKKVNWBNFQDIJZOJX";
 
+//Try to find the best approximation of key with a maximum length of n
+// In French we know that the most used letter are e and a. So we need to find the best key that show up the maximum of
+// e and a when we try a decypher. Then we could perform an easy brute force for finding the remaining component of the key
+
+//most useful rewrite of frequency function of exercice 1.3.2
+class Occur {
+    constructor(letter, freq = 1) {
+        this.letter = letter;
+        this.freq = freq;
+    }
+    inc() { ++this.freq;}
+}
+const frequency = str => {
+    str = sanitize(str);
+    let result= []; //array of Occur objects
+    //fill our result array;
+    for(let i = 0; i < str.length; ++i) {
+        let found = result.find(elem => elem.letter === str[i]);
+        found ? found.inc() : result.push(new Occur(str[i]));
+    }
+    //sort our array in descend way.
+    result.sort((elem1, elem2) => elem2.freq > elem1.freq ? 1: -1);
+    return result;
+};
+
+//Return the keys with the highest possibility for each possible size from 1 to max inclusive
+const findKeys = (str, max) => {
+    let keys = [];
+    //A key has the a size from 1 to max
+    for(let i = 0; i < max; ++i) {
+        let grp = regroup(str, i + 1);
+        //Find the letters with the highest frequency in each chunk
+        //Our hypothesis is the letters found are the enciphered version of "E"
+        let key = "";
+        for (let j = 0; j < grp.length; ++j) {
+            let encE = frequency(grp[j])[0].letter;
+            let offset = indexAlphabet(encE) - indexAlphabet("E");
+            offset = offset < 0 ? offset + 26 : offset;
+            key = key +  String.fromCharCode(65 + offset);
+        }
+        keys.push(key);
+    }
+    return keys;
+};
+
 //Test Encryption into Decryption:
 console.log("Training A and B:");
 let msg = "coucou Toi, Ze 1337 alors? comment ca va ajd?";
@@ -88,6 +135,19 @@ console.log("message: ", msg);
 console.log('encrypted: ', enc);
 console.log('decrypted: ', dec);
 
+//Test regroup function
 console.log("Training C:");
 let reg = regroup(msg, key.length);
 console.log(reg);
+
+console.log("Training D:");
+console.log("Secret message:", secret);
+let keys = findKeys(secret, 5); // our key has a max length of 5
+console.log(`Best possible keys are ${keys.join(", ")}`);
+// For each key try to decipher the text
+keys.forEach(key => {
+    console.log("############################################");
+    console.log(`Decipher with key ${key}`);
+    console.log(decVigenere(secret, key));
+});
+console.log("We obtain a clear text in French with the key CRYPT");
