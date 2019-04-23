@@ -2,7 +2,7 @@ class EllipticCurve {
     constructor(a, b) {
         this.a = a;
         this.b = b;
-        if(4*(Math.pow(a, 3)) + 27*(Math.pow(b, 2)) === 0) throw new Error("Not a valid elliptic curve");
+        if( 4 * (Math.pow(a, 3)) + 27 * (Math.pow(b, 2)) === 0) throw new Error("Not a valid elliptic curve");
     }
     eq(curve){
         return (this.a === curve.a && this.b === curve.b);
