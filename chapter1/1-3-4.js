@@ -48,6 +48,9 @@ class Point {
         this.x = BigInt(x);
         this.y = BigInt(y);
     }
+    str() {
+        return `x=${this.x.toString(16)},  y=${this.y.toString(16)}`
+    }
 }
 
 // You should not never use this class, it is not secured.
@@ -84,28 +87,40 @@ class EllipticCurve {
     }
     // add point1 and point2 return the resulting point
     add(p1, p2){
-        let s = mod(((p2.y - p1.y)  * modinv((p2.x - p1.x), this.P)), this.P);
-        let x3 = mod((s ** 2n - p2.x - p1.x), this.P);
-        let y3 = mod((s * (p1.x - x3)) - p1.y, this.P);
-        return new Point(x3, y3);
+        if(p1.x === 0n && p1.y === 0n ) return p2;
+        else if(p2.x === 0n && p2.y === 0n) return p1;
+        else if(p1.x === p2.x && p1.y === p2.y) {
+            return this.double(p1);
+        }
+        else {
+            let s = mod(((p2.y - p1.y) * modinv((p2.x - p1.x), this.P)), this.P);
+            let x3 = mod((s ** 2n - p2.x - p1.x), this.P);
+            let y3 = mod((s * (p1.x - x3) - p1.y), this.P);
+            return new Point(x3, y3);
+        }
     }
 
     //Using double and add algorithm
-    mul(n, point){
-        
-        let tx = point.x;
-        let ty = point.y;
-        for(let i = 1; i < n; i++) {
-        let s = mod((((3n * (tx) ** 2n + this.a) % this.P) *  modinv((2n * ty), this.P)), this.P);
-        let xr = mod((s ** 2n - 2n * tx), this.P) ;
-        let yr = mod((s * (tx - xr) - ty), this.P);
-        tx = xr;
-        ty = yr;
-        //return new Point(xr, yr );
+    mul(point, n){
+        let bin = BigInt(n).toString(2).split("").reverse();
+       // console.log(bin);
+        let res = new Point(0n, 0n); //infinite ??
+        for(let i = bin.length - 1; i >= 0; --i){
+            res = this.double(res);
+           // console.log(res.str());
+            if(bin[i] === "1"){
+                //console.log("")
+                res = this.add(res, point);
+                //console.log(res.str());
+            }
         }
-        return(new Point(tx, ty));
+        return res;
+    }
+    mulGby(n) {
+        return this.mul(this.G, n);
     }
     double(point) {
+        if(point.x === 0n && point.y === 0n) return point;
         let s = mod((((3n * (point.x) ** 2n + this.a) % this.P) *  modinv((2n * point.y), this.P)), this.P);
         let xr = mod((s ** 2n - 2n * point.x), this.P) ;
         let yr = mod((s * (point.x - xr) - point.y), this.P);
@@ -113,19 +128,38 @@ class EllipticCurve {
     }
 }
 
+
 //Input
-/*
+let a = 0;
+let b = 7;
 const P = 2n ** 256n - 2n ** 32n - 977n;
 const G = new Point(55066263022277343669578718895168534326250603453777594175500187360389116729240n,
                     32670510020758816978083085130507043184471273380659243275938904335757337482424n);
-const Secp256k1 = new EllipticCurve(0, 7, P, G);
+const SECP256K1 = new EllipticCurve(0, 7, P, G);
 
-console.log(Secp256k1.G);
+//TEST
+console.log(SECP256K1.str());
+for(let i = 1; i <= 20 ; ++i) {
+    let res = SECP256K1.mulGby(i);
+    console.log("k = ", i);
+    console.log("x = ", (res.x).toString(16).toUpperCase());
+    console.log("y = ", (res.y).toString(16).toUpperCase());
+    console.log("\n");
+}
 
-let z = Secp256k1.mulG();
-console.log(BigInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798));
-console.log(BigInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8));
-*/
+
+//let g3 = SECP256K1.add(g2, SECP256K1.G);
+//console.log((g3.x).toString(16).toUpperCase());
+//console.log((g3.y).toString(16).toUpperCase());
+//let g4 = SECP256K1.add(g2, g2);
+//let g6 = SECP256K1.add(g4, g2);
+//console.log((g4.x).toString(16).toUpperCase());
+//console.log((g4.y).toString(16).toUpperCase());
+
+//let z = Secp256k1.mulG();
+//console.log(BigInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798));
+//console.log(BigInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8));
+
 //let nb = 1n;
 /*for(let i = 0n; i < 256; i++) {
     nb += ;
@@ -140,22 +174,9 @@ console.log(BigInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB1
 //const Yg = curve.f(Xg);
 //console.log('Gx=',Xg ,'Gy=', Yg);
 //console.log(`G is on ellipitc curve?: ${curve.testPoint(Xg, Yg)}`);
-let a = 2; let b = 3;
+/*let a = 2; let b = 3;
 let p = 97;
 let g = new Point(3, 6);
 let test = new EllipticCurve(a, b, p, g);
-console.log(test.str());
-let g2 = test.double(test.G);
-let g4 = test.double(g2);
-console.log(g4);
-let g8 = test.double(g4);
-console.log(g8);
-//let g4 = test.add(g3, test.G);
-//console.log('G4=');
-//console.log(g4);
-//co//ole.log(test.add(test.add(g, g), test.add(g, g)));
-//console.log("mull");
-//console.log(test.mul(3n, g));
-//console.log("f(80):");
-//console.log(test.f(80n));
+console.log(test.mulGby(3));*/
 
