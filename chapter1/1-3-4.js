@@ -1,10 +1,12 @@
 const crypto = require("crypto");
 
+//A real modulo function
 const mod = (a, n) => {
     let modulo = BigInt(BigInt(a) % BigInt(n));
     return modulo > 0n ? modulo : modulo + n;
 };
 
+//Extended Euclidean algorithm
 const egcd = (b, n) => {
     let [x0, x1, y0, y1] = [1n, 0n, 0n, 1n];
     while(n !== 0n) {
@@ -16,21 +18,40 @@ const egcd = (b, n) => {
     return [b, x0, y0];
 };
 
+//Modular multiplicative inverse
 const modinv = (b, n) => {
     return mod(egcd(b, n)[1], n);
-}
+};
+
+const sqrt = value => {
+    if (value < 0n) {
+        throw 'square root of negative numbers is not supported'
+    }
+
+    if (value < 2n) {
+        return value;
+    }
+
+    function newtonIteration(n, x0) {
+        const x1 = ((n / x0) + x0) >> 1n;
+        if (x0 === x1 || x0 === (x1 - 1n)) {
+            return x0;
+        }
+        return newtonIteration(n, x1);
+    }
+
+    return newtonIteration(value, 1n);
+};
 
 class Point {
     constructor(x, y){
         this.x = BigInt(x);
         this.y = BigInt(y);
     }
-
 }
 
-
-//const FINITE_FIELD =
-
+// You should not never use this class, it is not secured.
+// But use this class applied to secp256k1 with the SECP256K1 constant;
 class EllipticCurve {
     //y^2 = x^3 + a * x + b, P is the finite Field modulus, G is the Base point
     constructor(a, b, P, G) {
@@ -38,6 +59,7 @@ class EllipticCurve {
         this.b = BigInt(b);
         if(!P) throw new Error("Please provide a finite field modulus P");
         this.P = BigInt(P);
+        if(!G) throw new Error("Please provide a base point on the curve");
         this.G = G;
         if( 4 * (Math.pow(a, 3)) + 27 * (Math.pow(b, 2)) === 0) throw new Error("Not a valid elliptic curve");
     }
@@ -57,42 +79,38 @@ class EllipticCurve {
         str = str + (this.b === 0n ? "" : ` + ${this.b}`);
         return str;
     }
-    //f(x) {
-    //    return Math.sqrt(Math.pow(x, 3) + this.a * x + this.b);
-    //}
+    //Apply y^2 mod p = x^3 + a * x + b mod p
+    f(x) {
+    }
     // add point1 and point2 return the resulting point
     add(p1, p2){
-        let s = (p2.y - p1.y) / (p2.x - p1.x);
-        let x3 = s ** 2n - p1.x - p2.x;
-        let y3 = p1.y + s * (x3 - p1.x);
+        let s = mod(((p2.y - p1.y)  * modinv((p2.x - p1.x), this.P)), this.P);
+        let x3 = mod((s ** 2n - p2.x - p1.x), this.P);
+        let y3 = mod((s * (p1.x - x3)) - p1.y, this.P);
         return new Point(x3, y3);
-
     }
-    //addG(point) {
-    //    let s = 3n * (this.G.x) ** 2 / (2 * this.G.y)
 
-    //}
-    // multiply point by n and return the result
-    mulG(n){
-        let tx = this.G.x;
-        let ty = this.G.y;
+    //Using double and add algorithm
+    mul(n, point){
+        
+        let tx = point.x;
+        let ty = point.y;
         for(let i = 1; i < n; i++) {
         let s = mod((((3n * (tx) ** 2n + this.a) % this.P) *  modinv((2n * ty), this.P)), this.P);
-        console.log('s = ', s);
         let xr = mod((s ** 2n - 2n * tx), this.P) ;
-        console.log('x = ', xr);
         let yr = mod((s * (tx - xr) - ty), this.P);
-        console.log("y = ", yr);
-        console.log("result: ");
-        console.log(new Point(xr, yr));
         tx = xr;
         ty = yr;
         //return new Point(xr, yr );
         }
-        console.log(new Point(tx, ty));
         return(new Point(tx, ty));
-        }
-
+    }
+    double(point) {
+        let s = mod((((3n * (point.x) ** 2n + this.a) % this.P) *  modinv((2n * point.y), this.P)), this.P);
+        let xr = mod((s ** 2n - 2n * point.x), this.P) ;
+        let yr = mod((s * (point.x - xr) - point.y), this.P);
+        return (new Point(xr, yr));
+    }
 }
 
 //Input
@@ -127,5 +145,17 @@ let p = 97;
 let g = new Point(3, 6);
 let test = new EllipticCurve(a, b, p, g);
 console.log(test.str());
-console.log(test.mulG(7));
+let g2 = test.double(test.G);
+let g4 = test.double(g2);
+console.log(g4);
+let g8 = test.double(g4);
+console.log(g8);
+//let g4 = test.add(g3, test.G);
+//console.log('G4=');
+//console.log(g4);
+//co//ole.log(test.add(test.add(g, g), test.add(g, g)));
+//console.log("mull");
+//console.log(test.mul(3n, g));
+//console.log("f(80):");
+//console.log(test.f(80n));
 
