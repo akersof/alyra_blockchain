@@ -1,4 +1,8 @@
 const crypto = require("crypto");
+//Well 1.37am here, i am not ready for a base 58 implementation tonight. But will do soon :)
+const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const base58 = require('base-x')(ALPHABET);
+
 
 //A real modulo function
 const mod = (a, n) => {
@@ -15,7 +19,6 @@ const egcd = (b, n) => {
         [x0, x1] = [x1, x0 - q * x1];
         [y0, y1] = [y1, y0 - q * y1];
     }
-
     return [b, x0, y0];
 };
 
@@ -24,6 +27,7 @@ const modinv = (b, n) => {
     return mod(egcd(b, n)[1], n);
 };
 
+//I don't use this function yet.. maybe one day
 const sqrt = value => {
     if (value < 0n) {
         throw 'square root of negative numbers is not supported'
@@ -143,18 +147,47 @@ class Secp256k1 extends EllipticCurve{
         const G = new Point(55066263022277343669578718895168534326250603453777594175500187360389116729240n,
             32670510020758816978083085130507043184471273380659243275938904335757337482424n);
         super(0, 7, P, G);
+        this.MAX_PRIV_KEY =  BigInt("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
     }
     //randomly generate a private key
     getPrivKey(){
-
+        let privKey = crypto.randomBytes(32).toString('hex');
+        while(BigInt('0x' + privKey) >= this.MAX_PRIV_KEY)
+            privKey = crypto.randomBytes(32).toString('hex');
+        return privKey.toUpperCase();
     }
     //generate a public key
-    getPubKey(privKey){
-        return this.mulGby(privKey);
+    getPubKey(privKey, compressed=true, ){
+        let pubKey = "";
+        privKey = privKey.toUpperCase().startsWith('0X') ? privKey : '0x' + privKey;
+        let pubPoint = this.mulGby(BigInt(privKey));
+        if(!compressed)
+            pubKey = "04" + pubPoint.x.toString(16).toUpperCase().padStart(32 * 2, '0')
+                          + pubPoint.y.toString(16).toUpperCase().padStart(32 * 2, '0');
+        else {
+            let prefix = mod(pubPoint.y, 2n) === 0n ? "02" : "03";
+            pubKey = prefix + pubPoint.x.toString(16).toUpperCase().padStart(32 * 2, '0')
+        }
+        return pubKey;
+    }
+    getAddress(pubKey, mainNet=true){
+        let sha = crypto.createHash('sha256').update(Buffer.from(pubKey, 'hex')).digest();
+        let ripe = crypto.createHash('ripemd160').update(sha).digest();
+        let version = mainNet ? Buffer.from([0x00]) : Buffer.from([0x6F]);
+        ripe = Buffer.concat([version, ripe]);
+        let tmp = crypto.createHash('sha256').update(ripe).digest();
+        tmp = crypto.createHash('sha256').update(tmp).digest();
+        ripe = Buffer.concat([ripe, tmp.slice(0, 4)]);
+        return base58.encode(ripe);
     }
 }
 
 const SECP256K1 = new Secp256k1();
-console.log(SECP256K1.str());
-console.log(SECP256K1.mulGby(112233445566778899112233445566778899n).str());
-console.log(SECP256K1.mulGby(BigInt('0xAA5E28D6A97A2479A65527F7290311A3624D4CC0FA1578598EE3C2613BF99522')).str());
+
+//Test made based on https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses values
+const privKey = "18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725";
+const pubKey = SECP256K1.getPubKey(privKey);
+const address = SECP256K1.getAddress(pubKey);
+console.log('private key =   ', privKey);
+console.log('public key  = ', pubKey);
+console.log('address = ', address);
