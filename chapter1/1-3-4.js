@@ -3,7 +3,8 @@ const crypto = require("crypto");
 //A real modulo function
 const mod = (a, n) => {
     let modulo = BigInt(BigInt(a) % BigInt(n));
-    return modulo > 0n ? modulo : modulo + n;
+    //let modulo = a % n;
+    return modulo < 0n ? modulo + n : modulo;
 };
 
 //Extended Euclidean algorithm
@@ -93,25 +94,31 @@ class EllipticCurve {
             return this.double(p1);
         }
         else {
-            let s = mod(((p2.y - p1.y) * modinv((p2.x - p1.x), this.P)), this.P);
-            let x3 = mod((s ** 2n - p2.x - p1.x), this.P);
-            let y3 = mod((s * (p1.x - x3) - p1.y), this.P);
-            return new Point(x3, y3);
+            //I am messing too much with commutativity. This is not commutative so i am forcing the comunatiivity myself
+            let min;
+            let max;
+            if(p2.x > p1.x) {
+                max = p2;
+                min = p1;
+            } else {
+                max = p1;
+                min = p2;
+            }
+            let s = mod((max.y - min.y) * modinv(max.x - min.x, this.P), this.P);
+            let x3 = mod((s ** 2n - max.x - min.x), this.P);
+            let y3 = mod(s * ( min.x - x3)  - min.y, this.P);
+            return new Point(x3, y3 );
         }
     }
 
     //Using double and add algorithm
     mul(point, n){
-        let bin = BigInt(n).toString(2).split("").reverse();
-       // console.log(bin);
+        let bin = BigInt(n).toString(2);
         let res = new Point(0n, 0n); //infinite ??
-        for(let i = bin.length - 1; i >= 0; --i){
+        for(let i = 0; i < bin.length; ++i){
             res = this.double(res);
-           // console.log(res.str());
             if(bin[i] === "1"){
-                //console.log("")
                 res = this.add(res, point);
-                //console.log(res.str());
             }
         }
         return res;
@@ -129,54 +136,16 @@ class EllipticCurve {
 }
 
 
-//Input
+//SECP256K1 values;
 let a = 0;
 let b = 7;
-const P = 2n ** 256n - 2n ** 32n - 977n;
+const P = BigInt(2n ** 256n - 2n ** 32n - 977n);
 const G = new Point(55066263022277343669578718895168534326250603453777594175500187360389116729240n,
                     32670510020758816978083085130507043184471273380659243275938904335757337482424n);
 const SECP256K1 = new EllipticCurve(0, 7, P, G);
 
 //TEST
 console.log(SECP256K1.str());
-for(let i = 1; i <= 20 ; ++i) {
-    let res = SECP256K1.mulGby(i);
-    console.log("k = ", i);
-    console.log("x = ", (res.x).toString(16).toUpperCase());
-    console.log("y = ", (res.y).toString(16).toUpperCase());
-    console.log("\n");
-}
-
-
-//let g3 = SECP256K1.add(g2, SECP256K1.G);
-//console.log((g3.x).toString(16).toUpperCase());
-//console.log((g3.y).toString(16).toUpperCase());
-//let g4 = SECP256K1.add(g2, g2);
-//let g6 = SECP256K1.add(g4, g2);
-//console.log((g4.x).toString(16).toUpperCase());
-//console.log((g4.y).toString(16).toUpperCase());
-
-//let z = Secp256k1.mulG();
-//console.log(BigInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798));
-//console.log(BigInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8));
-
-//let nb = 1n;
-/*for(let i = 0n; i < 256; i++) {
-    nb += ;
-}*/
-//console.log(nb);
-//let a = crypto.randomBytes(256).toString('hex');
-//a = "0x" + a;
-//console.log(BigInt(a));
-//console.log(BigInt(a));
-//console.log(BigInt(parseInt(a, 16)));
-//const Xg = parseInt(crypto.randomBytes(1).toString('hex'), 16);
-//const Yg = curve.f(Xg);
-//console.log('Gx=',Xg ,'Gy=', Yg);
-//console.log(`G is on ellipitc curve?: ${curve.testPoint(Xg, Yg)}`);
-/*let a = 2; let b = 3;
-let p = 97;
-let g = new Point(3, 6);
-let test = new EllipticCurve(a, b, p, g);
-console.log(test.mulGby(3));*/
+console.log(SECP256K1.mulGby(112233445566778899112233445566778899n).str());
+console.log(SECP256K1.mulGby(BigInt('0xAA5E28D6A97A2479A65527F7290311A3624D4CC0FA1578598EE3C2613BF99522')).str());
 
