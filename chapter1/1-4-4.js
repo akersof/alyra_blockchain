@@ -41,10 +41,11 @@ const SEQ_SIZE = 4;
 
 class Input {
     constructor() {
-        this.TXID = "";
+        this.txId = "";
         this.outIndex = "";
         this.scriptSig = "";
         this.sequence = "";
+        this.size = 0;
 
     }
     //construct an entry from hex string.
@@ -52,7 +53,7 @@ class Input {
         let curIndex = 0;
         let buff = Buffer.from(entry, 'hex');
         //Get previous transaction ID
-        this.TXID = le2be(buff.slice(curIndex, curIndex + TXID_SIZE).toString('hex'));
+        this.txId = le2be(buff.slice(curIndex, curIndex + TXID_SIZE).toString('hex'));
         curIndex += TXID_SIZE;
         //get output index
         this.outIndex = parseInt(le2be(buff.slice(curIndex, curIndex + OUTPUT_INDEX_SIZE).toString('hex')), 16);//.toString('hex');
@@ -63,25 +64,53 @@ class Input {
         this.scriptSig = buff.slice(curIndex, curIndex + viValue).toString('hex');
         curIndex += viValue;
         this.sequence = buff.slice(curIndex, curIndex + SEQ_SIZE).toString('hex');
+        curIndex += SEQ_SIZE;
+        this.size = curIndex;
     }
     str(){
-        let TXID = `previous tx: ${this.TXID}`;
+        let txId = `previous tx: ${this.txId}`;
         let outIndex = `output index: ${this.outIndex}`;
         let scriptSig = `scriptSig: ${this.scriptSig}`;
         let sequence = `sequence: ${this.sequence}`;
-        return `${TXID}\n${outIndex}\n${scriptSig}\n${sequence}\n`;
+        return `${txId}\n${outIndex}\n${scriptSig}\n${sequence}\n`;
+    }
+}
+
+// Output related constant
+const SATOSHI_SIZE = 8;
+class Output {
+    constructor(){
+        this.amount = 0;
+        this.scriptPubKeySize = 0;
+        this.scriptPubKey = "";
+        this.size = 0;
+    }
+    from(str) {
+        let curIndex = 0;
+        let buff = Buffer.from(str, 'hex');
+        this.amount = parseInt(le2be(buff.slice(curIndex, SATOSHI_SIZE).toString('hex')), 16);
+        curIndex += SATOSHI_SIZE;
+        let [viSize, viValue] = readVarIntField(buff.slice(curIndex));
+        this.scriptPubKeySize = viValue;
+        curIndex += viSize;
+        this.scriptPubKey = buff.slice(curIndex, curIndex + this.scriptPubKeySize).toString('hex');
+        curIndex += this.scriptPubKeySize;
+        this.size = curIndex;
     }
 }
 
 //Transaction related constants
 const VERSION_SIZE = 4;
-
+const LOCKTIME_SIZE = 4;
 class Transaction{
     constructor() {
         this.version = 0;
         this.inputCount = 0;
-        this.inputs = []; //an array of entry
-        this.outputs = [];
+        this.inputs = []; // an array of input
+        this.outputCount = 0;
+        this.outputs = []; // an array of output
+        this.lockTime = 0;
+        this.size = 0;
     }
     from(str){
         let curIndex = 0;
@@ -94,14 +123,49 @@ class Transaction{
         this.inputCount = viValue;
         curIndex += fieldSize;
         // get inputs
-
-
-
+        for(let i = 0; i < this.inputCount; ++i) {
+            let input = new Input();
+            input.from(buff.slice(curIndex));
+            this.inputs.push(input);
+            curIndex += input.size;
+        }
+        //get ouputs
+        [fieldSize, viValue] = readVarIntField(buff.slice(curIndex));
+        this.outputCount = viValue;
+        curIndex += fieldSize;
+        for(let i = 0; i < this.outputCount; ++i) {
+            let output = new Output();
+            output.from(buff.slice(curIndex));
+            this.outputs.push(output);
+            curIndex += output.size;
+        }
+        this.lockTime = parseInt(le2be(buff.slice(curIndex, curIndex + LOCKTIME_SIZE).toString('hex')), 16);
+        curIndex += LOCKTIME_SIZE;
+        this.size = curIndex;
     }
     str(){
         let version = `version: ${this.version}`;
-        let inputCount = `nb input: ${this.inputCount}`;
-        return `${version}\n${inputCount}`;
+        let inputCount = `nb inputs: ${this.inputCount}`;
+        let inputs = "";
+        for(let i = 0; i < this.inputs.length; ++i) {
+            inputs = inputs + `\ninput ${i + 1}:\n`;
+            let txId = `\tprevious tx: ${this.inputs[i].txId}`;
+            let outIndex = `\toutput index: ${this.inputs[i].outIndex}`;
+            let scriptSig = `\tscriptSig: ${this.inputs[i].scriptSig}`;
+            let sequence = `\tsequence: ${this.inputs[i].sequence}`;
+            inputs = inputs + `${txId}\n${outIndex}\n${scriptSig}\n${sequence}`;
+        }
+        let outputCount = `nb outputs: ${this.outputCount}`;
+        let outputs = "";
+        for(let i = 0; i < this.outputs.length; ++i) {
+            outputs = outputs + `\noutput ${i + 1}:\n`;
+            let amout = `\tamount: ${this.outputs[i].amount} -> ${this.outputs[i].amount * Math.pow(10, -8)} BTC`;
+            let script = `\tscript pub key: ${this.outputs[i].scriptPubKey}`;
+            outputs = outputs + `${amout}\n${script}`;
+        }
+        let lockTime = `lock time: ${this.lockTime}`;
+        return `${version}\n${inputCount}${inputs}\n${outputCount}${outputs}\n${lockTime}\n`;
+
     }
 }
 
@@ -119,10 +183,14 @@ const inputExample =
     "ce596e692021b66441b39b4b35e64e012102f63ae3eba460a8ed1be568b0c9a6c947abe9f079bcf861a7fdb2fd577ed" +
     "48a81Feffffff";
 
+
+console.log("TRANSACTION TEST:");
 let transaction = new Transaction();
 transaction.from(exercice);
 console.log(transaction.str());
+console.log(transaction.size);
 
+/*console.log("INPUT TEST:");
 let input = new Input();
 input.from(inputExample);
-console.log(input.str());
+console.log(input.size);*/
