@@ -16,7 +16,6 @@ const dec2hex = n => {
     let tmp = [];
     for(let i = 0; i < result.length; i += 2)
         tmp.push(result[i] + result[i + 1]);
-    let le = "";
     let output = `${n} -> 0x ${tmp.join(' ')} (big endian)\n  -> 0x ${tmp.reverse().join(' ')} (little endian)`;
     console.log(output);
 
