@@ -2,15 +2,6 @@
     Convert a decimal number to an hexadecimal string in both big and little endian
  */
 
-function arrayChunk(list, n) {
-    let result = [];
-    let input = list.slice(0);
-    while (a[0]) {
-        result.push(a.splice(0, howMany))
-    }
-    return result
-}
-
 const HEX = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 const dec2hex = n => {
     let result = [];
