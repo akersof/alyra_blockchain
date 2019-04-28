@@ -4,7 +4,7 @@ const SEQ_SIZE = 4;
 
 //little endian to big endian
 //take a string and return an Int
-// TODO works as long as this is a 4 bytes number.
+// TODO works as long as this is a 4 bytes number ?
 const le2be = str => {
     let beString = "";
     for(let i = 0; i < str.length; i += 2)
