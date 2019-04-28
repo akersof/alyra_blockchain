@@ -52,4 +52,4 @@ const calc = str => {
 console.log(calc("1 1 +"));         // 2
 console.log(calc('12 4 - 2 *'));    // 16
 console.log(calc('-1 3 - 10 *'));   // -40
-console.log(calc('4 2 * 8 ='));     // true
+console.log(calc('4 2 * 8 ='));      // true
