@@ -45,6 +45,7 @@ class Input {
         this.outIndex = "";
         this.scriptSig = "";
         this.sequence = "";
+
     }
     //construct an entry from hex string.
     from(entry){
