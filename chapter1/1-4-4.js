@@ -159,9 +159,9 @@ class Transaction{
         let outputs = "";
         for(let i = 0; i < this.outputs.length; ++i) {
             outputs = outputs + `\noutput ${i + 1}:\n`;
-            let amout = `\tamount: ${this.outputs[i].amount} -> ${this.outputs[i].amount * Math.pow(10, -8)} BTC`;
+            let amount = `\tamount: ${this.outputs[i].amount} -> ${this.outputs[i].amount * Math.pow(10, -8)} BTC`;
             let script = `\tscript pub key: ${this.outputs[i].scriptPubKey}`;
-            outputs = outputs + `${amout}\n${script}`;
+            outputs = outputs + `${amount}\n${script}`;
         }
         let lockTime = `lock time: ${this.lockTime}`;
         return `${version}\n${inputCount}${inputs}\n${outputCount}${outputs}\n${lockTime}\n`;
