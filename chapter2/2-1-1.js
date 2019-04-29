@@ -1,0 +1,4 @@
+const MAX_TARGET = BigInt("0x00000000FFFF0000000000000000000000000000000000000000000000000000");
+const getDifficulty = cible => {
+    return MAX_TARGET / BigInt(cible);
+};

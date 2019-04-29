@@ -124,7 +124,7 @@ class Output {
 //Transaction related constants
 const VERSION_SIZE = 4;
 const LOCKTIME_SIZE = 4;
-const SCRIPT_OPERANDE = [0X76, 0xA9, 0X88, 0xAC];
+const SCRIPT_OPERANDE = [0X76, 0xA9, 0X88, 0xAC]; const 
 class Transaction{
     constructor() {
         this.version = 0;
