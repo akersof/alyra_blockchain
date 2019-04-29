@@ -45,6 +45,8 @@ class Input {
         this.outIndex = "";
         this.scriptSig = "";
         this.sequence = "";
+        this.signature = "";
+        this.pubKey = "";
         this.size = 0;
 
     }
@@ -62,7 +64,17 @@ class Input {
         let [viSize, viValue] = readVarIntField(buff.slice(curIndex));
         curIndex += viSize;
         this.scriptSig = buff.slice(curIndex, curIndex + viValue).toString('hex');
-        curIndex += viValue;
+        //
+        let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
+        curIndex += sigVarIntSize;
+        this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
+        curIndex += signatureSize;
+        let [pubVarIntSize, pubKeySize] = readVarIntField(buff.slice(curIndex));
+        curIndex += pubVarIntSize;
+        this.pubKey = buff.slice(curIndex, curIndex + pubKeySize).toString('hex');
+        curIndex += pubKeySize;
+        //
+        //curIndex += viValue;
         this.sequence = buff.slice(curIndex, curIndex + SEQ_SIZE).toString('hex');
         curIndex += SEQ_SIZE;
         this.size = curIndex;
@@ -71,8 +83,10 @@ class Input {
         let txId = `previous tx: ${this.txId}`;
         let outIndex = `output index: ${this.outIndex}`;
         let scriptSig = `scriptSig: ${this.scriptSig}`;
+        let signature = `\tsignature: ${this.signature}`;
+        let pubKey = `\tpublic key: ${this.pubKey}`;
         let sequence = `sequence: ${this.sequence}`;
-        return `${txId}\n${outIndex}\n${scriptSig}\n${sequence}\n`;
+        return `${txId}\n${outIndex}\n${scriptSig}\n${signature}\n${pubKey}\n${sequence}\n`;
     }
 }
 
@@ -152,8 +166,10 @@ class Transaction{
             let txId = `\tprevious tx: ${this.inputs[i].txId}`;
             let outIndex = `\toutput index: ${this.inputs[i].outIndex}`;
             let scriptSig = `\tscriptSig: ${this.inputs[i].scriptSig}`;
+            let signature = `\tsignature: ${this.inputs[i].signature}`;
+            let pubKey = `\tpublic key: ${this.inputs[i].pubKey}`;
             let sequence = `\tsequence: ${this.inputs[i].sequence}`;
-            inputs = inputs + `${txId}\n${outIndex}\n${scriptSig}\n${sequence}`;
+            inputs = inputs + `${txId}\n${outIndex}\n${scriptSig}\n${signature}\n${pubKey}\n${sequence}`;
         }
         let outputCount = `nb outputs: ${this.outputCount}`;
         let outputs = "";

@@ -42,17 +42,21 @@ const SEQ_SIZE = 4;
 //Just enough for 1.4.3 exercice done.
 class Input {
     constructor() {
-        this.TXID = "";
+        this.txId = "";
         this.outIndex = "";
         this.scriptSig = "";
         this.sequence = "";
+        this.signature = "";
+        this.pubKey = "";
+        this.size = 0;
+
     }
     //construct an entry from hex string.
     from(entry){
         let curIndex = 0;
         let buff = Buffer.from(entry, 'hex');
         //Get previous transaction ID
-        this.TXID = le2be(buff.slice(curIndex, curIndex + TXID_SIZE).toString('hex'));
+        this.txId = le2be(buff.slice(curIndex, curIndex + TXID_SIZE).toString('hex'));
         curIndex += TXID_SIZE;
         //get output index
         this.outIndex = parseInt(le2be(buff.slice(curIndex, curIndex + OUTPUT_INDEX_SIZE).toString('hex')), 16);//.toString('hex');
@@ -61,15 +65,29 @@ class Input {
         let [viSize, viValue] = readVarIntField(buff.slice(curIndex));
         curIndex += viSize;
         this.scriptSig = buff.slice(curIndex, curIndex + viValue).toString('hex');
-        curIndex += viValue;
+        //
+        let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
+        curIndex += sigVarIntSize;
+        this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
+        curIndex += signatureSize;
+        let [pubVarIntSize, pubKeySize] = readVarIntField(buff.slice(curIndex));
+        curIndex += pubVarIntSize;
+        this.pubKey = buff.slice(curIndex, curIndex + pubKeySize).toString('hex');
+        curIndex += pubKeySize;
+        //
+        //curIndex += viValue;
         this.sequence = buff.slice(curIndex, curIndex + SEQ_SIZE).toString('hex');
+        curIndex += SEQ_SIZE;
+        this.size = curIndex;
     }
     str(){
-        let TXID = `previous tx: ${this.TXID}`;
+        let txId = `previous tx: ${this.txId}`;
         let outIndex = `output index: ${this.outIndex}`;
         let scriptSig = `scriptSig: ${this.scriptSig}`;
+        let signature = `\tsignature: ${this.signature}`;
+        let pubKey = `\tpublic key: ${this.pubKey}`;
         let sequence = `sequence: ${this.sequence}`;
-        return `${TXID}\n${outIndex}\n${scriptSig}\n${sequence}\n`;
+        return `${txId}\n${outIndex}\n${scriptSig}\n${signature}\n${pubKey}\n${sequence}\n`;
     }
 }
 
