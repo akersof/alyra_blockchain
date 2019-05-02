@@ -65,21 +65,17 @@ class Input {
         curIndex += viSize;
         let scriptSigSize = viValue;
         this.scriptSig = buff.slice(curIndex, curIndex + viValue).toString('hex');
-        curIndex += viValue;
-        //let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
-        //curIndex += sigVarIntSize;
-        //this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
-       /* curIndex += signatureSize;
+        /* NEED TO REWORK THIS
+        let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
+        curIndex += sigVarIntSize;
+        this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
+        curIndex += signatureSize;
         let [pubVarIntSize, pubKeySize] = readVarIntField(buff.slice(curIndex));
         curIndex += pubVarIntSize;
         this.pubKey = buff.slice(curIndex, curIndex + pubKeySize).toString('hex');
         curIndex += pubKeySize;
-        curIndex = curIndex - - sigVarIntSize - signatureSize - pubVarIntSize - pubKeySize  + scriptSigSize;
-        //
-        //curIndex += viValue;
-
-        //curIndex +=*/
-        //curIndex += viValue;
+        */
+        curIndex += viValue;
         this.sequence = buff.slice(curIndex, curIndex + SEQ_SIZE).toString('hex');
         curIndex += SEQ_SIZE;
         console.log('SEQUENCE: ', this.sequence);
