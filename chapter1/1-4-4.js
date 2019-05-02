@@ -16,15 +16,15 @@ const readVarIntField = buff => {
     switch(prefix) {
         case 'FD':
             viSize += 2;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         case 'FE':
             viSize += 4;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         case 'FF':
             viSize += 8;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         default:
             //the prefix we read is in fact the value here cause no prefix.
@@ -63,20 +63,26 @@ class Input {
         //Get scriptSig
         let [viSize, viValue] = readVarIntField(buff.slice(curIndex));
         curIndex += viSize;
+        let scriptSigSize = viValue;
         this.scriptSig = buff.slice(curIndex, curIndex + viValue).toString('hex');
-        //
-        let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
-        curIndex += sigVarIntSize;
-        this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
-        curIndex += signatureSize;
+        curIndex += viValue;
+        //let [sigVarIntSize, signatureSize] = readVarIntField(buff.slice(curIndex));
+        //curIndex += sigVarIntSize;
+        //this.signature = buff.slice(curIndex, curIndex + signatureSize).toString('hex');
+       /* curIndex += signatureSize;
         let [pubVarIntSize, pubKeySize] = readVarIntField(buff.slice(curIndex));
         curIndex += pubVarIntSize;
         this.pubKey = buff.slice(curIndex, curIndex + pubKeySize).toString('hex');
         curIndex += pubKeySize;
+        curIndex = curIndex - - sigVarIntSize - signatureSize - pubVarIntSize - pubKeySize  + scriptSigSize;
         //
+        //curIndex += viValue;
+
+        //curIndex +=*/
         //curIndex += viValue;
         this.sequence = buff.slice(curIndex, curIndex + SEQ_SIZE).toString('hex');
         curIndex += SEQ_SIZE;
+        console.log('SEQUENCE: ', this.sequence);
         this.size = curIndex;
     }
     str(){
@@ -199,13 +205,23 @@ const inputExample =
     "ce596e692021b66441b39b4b35e64e012102f63ae3eba460a8ed1be568b0c9a6c947abe9f079bcf861a7fdb2fd577ed" +
     "48a81Feffffff";
 
+const thai = "0200000001ec774267aa31840ffccdb3bd9eabd1" +
+    "8d7939ff3f886f240a7671be1bc9e65822000000" +
+    "00fd1f0100483045022100de9971ad9edbf07725" +
+    "f186e35bb2f494e202b42f6cc8f4f20bb00f88dd" +
+    "daef6e0220447cc3a6e3cde7140767a358c30738" +
+    "99a145fa2d618edf8aac052b4617766b79014730" +
+    "4402201964730e5ba682064cc45464e71d250357620ae2af7540c1c72e91efb5f65ee40220420dad875996ce076420149babbd2c0e81d6330aaec0b72f1c41805602ad065b014c8b522103745c9aceb84dcdeddf2c3cdc1edb0b0b5af2f9bf85612d73fa6394758eaee35d21027efbabf425077cdbceb73f6681c7ebe2ade74a65ea57ebcf0c42364d3822c59021023a11cfcedb993ff2e7523f92e359c4454072a66d42e8b74b4b27a8a1258abddd2102e9d617f38f8c3ab9a6bde36ce991bafb295d7adba457699f8620c8160ec9e87a54aeffffffff01605af405000000001600140b85d9b75f55ad9d42ea2ae9a245568ca34932f600000000";
+
 
 console.log("TRANSACTION TEST:");
 let transaction = new Transaction();
-transaction.from(exercice);
+transaction.from(thai);
 console.log(transaction.str());
-console.log(transaction.size);
-
+//console.log(transaction.size);
+//let input = new Input();
+//input.from('00483045022100de9971ad9edbf07725f186e35bb2f494e202b42f6cc8f4f20bb00f88dddaef6e0220447cc3a6e3cde7140767a358c3073899a145fa2d618edf8aac052b4617766b790147304402201964730e5ba682064cc45464e71d250357620ae2af7540c1c72e91efb5f65ee40220420dad875996ce076420149babbd2c0e81d6330aaec0b72f1c41805602ad065b014c8b522103745c9aceb84dcdeddf2c3cdc1edb0b0b5af2f9bf85612d73fa6394758eaee35d21027efbabf425077cdbceb73f6681c7ebe2ade74a65ea57ebcf0c42364d3822c59021023a11cfcedb993ff2e7523f92e359c4454072a66d42e8b74b4b27a8a1258abddd2102e9d617f38f8c3ab9a6bde36ce991bafb295d7adba457699f8620c8160ec9e87a54ae');
+//console.log(input.str());
 /*console.log("INPUT TEST:");
 let input = new Input();
 input.from(inputExample);
