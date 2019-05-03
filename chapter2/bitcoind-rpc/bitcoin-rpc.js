@@ -5,14 +5,6 @@ const range = (start, end) => {
     return Array(end - start + 1).fill().map((_, idx) => start + idx)
 };
 
-const le2be = str => {
-    let beStr = "";
-    for(let i = 0; i < str.length; i += 2)
-        beStr = str[i] + str[i + 1] + beStr;
-    return beStr;
-};
-
-
 class BitcoinClient {
     // #TODO: read these values from a config file too;
     constructor(network = 'regtest', port = 18443, username = 'bitcoin', password = 'bitcoin') {
