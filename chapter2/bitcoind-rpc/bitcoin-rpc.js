@@ -68,5 +68,4 @@ class BitcoinClient {
         return this.connection.getBlockchainInfo();
     }
 }
- const bc = new BitcoinClient();
-bc.getBlocByHeight(109).then(console.log);
+
