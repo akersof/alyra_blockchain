@@ -3,9 +3,83 @@
     verifyP2PKH("0x483045022100d544eb1ede691f9833d44e5266e923dae058f702d2891e4ee87621a433ccdf4f022021e40
     5c26b0483cd7c5636e4127a9510f3184d1994015aae43a228faa608362001210372cc7efb1961962bba20db0c6a3eebdde0ae60698
     6bf76cb863fa460aee8475c", "0x76a9147c3f2e0e3f3ec87981f9f2059537a355db03f9e888ac") -> True
+    signature cléPub OP_DUP OP_HASH160 hashCléPub OP_EQUALVERIFY OP_CHECKSIG
+
  */
 
-// Will will enhance the classes created at exercices 1.4.4 and add this features in class Transaction
+// Will enhance the classes created at exercices 1.4.4 and add this features in class Transaction
+
+const crypto = require('crypto');
+
+//return a pair [signature, pubkey]
+const unpackScriptSig = scriptSig => {
+    let buff = Buffer.from(scriptSig, 'hex');
+    let signatureSize = buff[0];
+    let signature = buff.slice(1, signatureSize + 1);
+    let pubKeySize = buff[signatureSize + 1];
+    let pubKey = buff.slice(signatureSize + 1 + 1, 1 + signatureSize + 1 + pubKeySize);
+    return [signature.toString('hex'), pubKey.toString('hex')];
+};
+
+//Just enough Script operand for exercice 1.4.7
+// OP_0, OP_1, OP_DUP, OP_ADD, OP_HASH160, OP_CHECKSIG, OP_CHECKLOCKTIMEVERIFY
+const ScriptOp = [0x00, 0x51, 0x76, 0x88, 0xA9, 0xAC, 0xB1];
+class Script {
+    constructor(scriptSig, scriptPubKey) {
+        this.stack = [];
+        let [signature, pubKey] = unpackScriptSig(scriptSig);
+        this.stack.push(Buffer.from(signature, 'hex'));
+        this.stack.push(Buffer.from(pubKey, 'hex'));
+        this.scriptPubKey = Buffer.from(scriptPubKey, 'hex');
+    }
+    execute() {
+        let index = 0;
+        while(index < this.scriptPubKey.length) {
+            switch (this.scriptPubKey[index]) {
+                case 0x00: //OP_0 push empty object on the stack
+                    this.stack.push("");
+                    ++index;
+                    break;
+                case 0x51: // OP_1 push number 1 on the stack
+                    this.stack.push(1);
+                    ++index;
+                    break;
+                case 0x76: //OP_DUP Duplicates the top stack item.
+                    let operand = this.stack.pop();
+                    this.stack.push(operand);
+                    this.stack.push(operand);
+                    ++index;
+                    break;
+                case 0x88: //OP_EQUALVERIFY returns 1 if inputs are exactly equal, 0 therwise
+                    let operand1 = this.stack.pop();
+                    let operand2 = this.stack.pop();
+                    //first check if 2 operand are equals performing the OP_EQUAL operation
+                    operand1.equals(operand2) ? this.stack.push(1) : this.stack.push(0);
+                    // continue is result on top of the stack is 1 else end execution and return false
+                    if(this.stack.pop() !== 1)
+                        return false;
+                    ++index;
+                    break;
+                case 0xA9: //OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
+                    let sha256 = crypto.createHash('sha256').update(this.stack.pop()).digest();
+                    let ripe = crypto.createHash('ripemd160').update(sha256).digest();
+                    this.stack.push(ripe);
+                    index++;
+                    break;
+                case 0xAC: //OP_CHECKSIG
+                    index++; //useless?
+                    return true; //we just return true for the exercice, definitvely need to implement this
+                default:
+                    let size = parseInt(this.scriptPubKey[index]);
+                    ++index;
+                    this.stack.push(this.scriptPubKey.slice(index, index + size));
+                    index += size;
+                    break;
+            }
+        }
+
+    }
+}
 
 //little endian hex string to big endian
 const le2be = str => {
@@ -24,15 +98,15 @@ const readVarIntField = buff => {
     switch(prefix) {
         case 'FD':
             viSize += 2;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         case 'FE':
             viSize += 4;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         case 'FF':
             viSize += 8;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         default:
             //the prefix we read is in fact the value here cause no prefix.
@@ -124,8 +198,8 @@ class Output {
 //Transaction related constants
 const VERSION_SIZE = 4;
 const LOCKTIME_SIZE = 4;
-const SCRIPT_OPERANDE = [0X76, 0xA9, 0X88, 0xAC]; const 
-class Transaction{
+const SCRIPT_OPERANDE = [0X76, 0xA9, 0X88, 0xAC];
+class Transaction {
     constructor() {
         this.version = 0;
         this.inputCount = 0;
@@ -198,30 +272,13 @@ class Transaction{
             scriptSig = scriptSig.slice(2);
         if(scriptPubKey.toUpperCase().startsWith('0X'))
             scriptPubKey = scriptPubKey.slice(2);
-        let curIndex = 0;
-        let scriptSigBuff = Buffer.from(scriptSig, "hex");
-        let [sigVarIntSize, signatureSize] = readVarIntField(scriptSigBuff.slice(curIndex));
-        curIndex += sigVarIntSize;
-        let signature = scriptSigBuff.slice(curIndex, curIndex + signatureSize).toString('hex');
-        curIndex += signatureSize;
-        let [pubVarIntSize, pubKeySize] = readVarIntField(scriptSigBuff.slice(curIndex));
-        curIndex += pubVarIntSize;
-        let pubKey = scriptSigBuff.slice(curIndex, curIndex + pubKeySize).toString('hex');
-        curIndex += pubKeySize;
-        let stack = [];
-        //checking sanity of scriptPubKey format
-        let scritPubKeyBuff = Buffer.from(scriptPubKey, "hex");
-
-
-
-        console.log(signature);
-        console.log(pubKey);
-
+        let script = new Script(scriptSig, scriptPubKey);
+        return script.execute();
     }
 }
 
 const transaction = new Transaction();
-transaction.verifyP2PKH("0x483045022100d544eb1ede691f9833d44e5266e923dae058f702d2891" +
+console.log(transaction.verifyP2PKH("0x483045022100d544eb1ede691f9833d44e5266e923dae058f702d2891" +
     "e4ee87621a433ccdf4f022021e405c26b0483cd7c5636e4127a9510f3184d1994015aae43a2" +
     "28faa608362001210372cc7efb1961962bba20db0c6a3eebdde0ae606986bf76cb863fa460aee8475c",
-    "0x76a9147c3f2e0e3f3ec87981f9f2059537a355db03f9e888ac");
+    "0x76a9147c3f2e0e3f3ec87981f9f2059537a355db03f9e888ac"));
