@@ -15,15 +15,15 @@ const readVarIntField = buff => {
     switch(prefix) {
         case 'FD':
             viSize += 2;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize)).toString('hex'), 16);
             break;
         case 'FE':
             viSize += 4;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         case 'FF':
             viSize += 8;
-            viValue = parseInt(buff.slice(1, 1 + viSize).toString('hex'), 16);
+            viValue = parseInt(le2be(buff.slice(1, 1 + viSize).toString('hex')), 16);
             break;
         default:
             //the prefix we read is in fact the value here cause no prefix.
