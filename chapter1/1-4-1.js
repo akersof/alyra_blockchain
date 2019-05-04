@@ -4,6 +4,7 @@
 
 const HEX = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 const dec2hex = n => {
+    let input = n;
     let result = [];
     do {
         result.push(HEX[n % 16]);
@@ -16,7 +17,7 @@ const dec2hex = n => {
     let tmp = [];
     for(let i = 0; i < result.length; i += 2)
         tmp.push(result[i] + result[i + 1]);
-    let output = `${n} -> 0x ${tmp.join(' ')} (big endian)\n  -> 0x ${tmp.reverse().join(' ')} (little endian)`;
+    let output = `${input} -> 0x ${tmp.join(' ')} (big endian)\n  -> 0x ${tmp.reverse().join(' ')} (little endian)`;
     console.log(output);
 
 };
