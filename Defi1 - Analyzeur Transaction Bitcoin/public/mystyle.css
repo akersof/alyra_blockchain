@@ -1,0 +1,20 @@
+body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: navy;
+  margin-left: 20px;
+}
+
+#entete{
+    background-color: aquamarine;
+    padding:10;
+    border: 1px solid blue;
+  box-sizing: border-box;
+}
+
+#body {
+    background-color: beige;
+    padding:20;
+}

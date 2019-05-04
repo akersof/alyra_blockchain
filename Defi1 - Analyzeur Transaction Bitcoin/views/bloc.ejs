@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sofiane - Ridy - Thai | Alyra</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/landing-page.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-light static-top">
+      <div class="container">
+        <a class="navbar-brand" href="/" style="color:white;">Bitcoin Explorer</a>
+        <a class="navbar-brand" href="/index/convertiseur" style="color:white;">Bitcoin Convertiseur</a>
+        <a class="navbar-brand" href="#" style="color:white;">Bitcoin Décode</a>
+      </div>
+    </nav>
+
+
+  <div style="background-color: #FFD700; height: 50;padding: 20px;">
+      <h2 style="text-align: center; color:black;line-height: 50px;">Bloc N°<%= id %></h2>
+      <p style="text-align: center; color:black;line-height: 50px;"><b style="font-size: 20px;">Hash : </b><span ><%= hashBloc %></span></p>
+  </div>
+  
+
+
+    <br/> <br/> 
+
+    <div class="container">
+
+
+        <% txjsonList.forEach(function(tx) { %>
+
+        <div class="card" style="border:2px dotted #FFD700;background-color: black;padding: 20px;margin-bottom: 30px;">
+            <div class="card-body">
+          
+                <% let a=JSON.stringify(tx.details) %>
+                <% let b=a.substr(1,a.length-2) %>
+                <% let c=JSON.parse(b) %>
+                <h5 align="center"><span style="color: #FFD700">Raw transaction </span> : <%= tx.hex %></h5>
+                <h5 align="center"><span style="color: #FFD700">Transaction adresse </span> : <%= c.address %></h5>
+                <h5 align="center"><span style="color: #FFD700">Montant </span> : <%= c.amount %> BTC</h5>
+  
+            </div>
+        </div>
+        
+
+        <% }); %>
+      
+
+
+        <p><a href="/"><button type="button" class="btn btn-warning">Retour</button></a></p>
+
+       
+       
+    </div>
+
+
+  <!-- Testimonials -->
+  <section class="testimonials text-center">
+    <div class="container">
+      <h2 class="mb-5">Best Team</h2>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+            <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-1.jpg" alt="">
+            <h5>Ridy</h5>
+            <p class="font-weight-light mb-0">"This is fantastic! Thanks so much guys!"</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+            <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-2.jpg" alt="">
+            <h5>Thai</h5>
+            <p class="font-weight-light mb-0">"Bootstrap is amazing. I've been using it to create lots of super nice landing pages."</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+            <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-3.jpg" alt="">
+            <h5>Sofiane</h5>
+            <p class="font-weight-light mb-0">"Thanks so much for making these free resources available to us!"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="call-to-action text-white text-center">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-9 mx-auto">
+          <h2 class="mb-4">Alyra - L'école blockchain</h2>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <% include ./footer %> 
+
+  <script data-main="./../main2" src="./../require.js"></script>

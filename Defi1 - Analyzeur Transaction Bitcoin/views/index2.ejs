@@ -1,0 +1,41 @@
+
+<HTML>
+ <!--   Input a raw hexadecimal transaction
+    
+    <input id="input">
+    <button type="button" onclick="Decode()">Submit</button>-->
+    
+<div id=transactions></div>
+
+<div id="boiteoutils">
+    <input id="inputHex" class="inputHex"><button type="button "id="submitHex"class="submitHex">Convert Hex to Decimal</button><br>
+    <input id="inputDec" class="inputDec"><button type="button "id="submitDec"class="submitDec">Convert Decimal to Hex</button><br>
+    <input id="inputLE" class="inputLE"><button type="button "id="submitLE"class="submitLE">Convert Decimal to LittleEndian</button><br>
+    <input id="inputVarInt" class="inputVarInt"><button type="button "id="submitVarInt"class="submitVarInt">Convert VarInt to Decimal</button><br>
+    <input id="inputCibleBits" class="inputCibleBits"><button type="button "id="submitCibleBits"class="submitCibleBits">TODO:Submit CibleBits</button><br>
+    <input id="inputCoefficient" class="inputCoefficient" value="245345">
+    <input id="inputExposant" class="inputExposant" value="16"><button type="button "id="submitDifficulte"class="submitDifficulte">calculer difficulte avec Cible Coefficient et Cible exposant</button><br>
+    
+</div>
+
+<!--
+<div id="hexReaderPane">
+    <input id="hexReader" class="hexReader">
+    <button type="button "id="submitHexReader"class="submitHexReader">Submit Raw Transaction</button>
+</div>
+-->
+    
+<div id="hexReaderPane">
+    <input id="hexReader" class="hexReader">
+    <button type="button "id="submitHexReader"class="submitHexReader">Submit Raw Transaction</button>
+</div>
+
+
+    
+<div id="resultBox"> RESULTS:<br>
+<div id="result"></div>    
+</div>        
+<script data-main="main2" src="require.js"></script>
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+
+</HTML>

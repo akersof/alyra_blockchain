@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sofiane - Ridy - Thai | Alyra</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/landing-page.css" rel="stylesheet">
+  
+
+</head>
+
+<body>
+
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-light static-top">
+    <div class="container">
+      <a class="navbar-brand" href="/" style="color:white;">Bitcoin Explorer</a>
+      <a class="navbar-brand" href="/index/convertiseur" style="color:white;">Bitcoin Convertiseur</a>
+      <a class="navbar-brand" href="#" style="color:white;">Bitcoin Décode</a>
+    </div>
+  </nav>
+
+
+
+
+  <div style="background-color: #FFD700; height: 50;padding: 20px;">
+        <h2 style="text-align: center; color:black;line-height: 50px;">Bitcoin Convertiseur</h2>
+    </div>
+    
+  
+  
+      <br/> <br/>
+  
+      <div class="container">
+  
+          <div class="card" style="border:2px dotted #FFD700;background-color: black;padding: 20px;margin-bottom: 30px;">
+              <div class="card-body">
+
+           
+                <div id=transactions></div>
+                
+                <div id="boiteoutils">
+                    <input id="inputHex" class="inputHex"  style="margin-bottom: 15px;margin-right: 15px;"><button type="button "id="submitHex"class="submitHex btn btn-warning"  >Convert Hex to Decimal</button><br>
+                    <input id="inputDec" class="inputDec"  style="margin-bottom: 15px; margin-right: 15px;"><button type="button "id="submitDec"class="submitDec btn btn-warning"  >Convert Decimal to little endian</button><br>
+                    <input id="inputVarInt" class="inputVarInt"  style="margin-bottom: 15px; margin-right: 15px;"><button type="button "id="submitVarInt"class="submitVarInt btn btn-warning"  >Convert VarInt to Decimal</button><br>
+                    <input id="inputCibleBits" class="inputCibleBits"  style="margin-bottom: 15px; margin-right: 15px;"><button type="button "id="submitCibleBits"class="submitCibleBits btn btn-warning"  >Convert Bits to target</button><br>
+                    <input id="inputDifficulty" class="inputDifficulty"  style="margin-bottom: 15px; margin-right: 15px;"><button type="button "id="submitDifficulty"class="submitDifficulty btn btn-warning"  >Convert Target to  Difficulty</button><br>
+                    
+                    
+                    <!--<input id="inputCoefficient" class="inputCoefficient" value="245345" style="margin-bottom: 15px; margin-right: 15px;">
+                    <input id="inputExposant" class="inputExposant" value="16" style="margin-bottom: 15px; margin-right: 15px;"><button type="button "id="submitDifficulte" class="submitDifficulte btn btn-warning" 
+                    >calculer difficulte avec Cible Coefficient et Cible exposant</button><br>-->
+                    
+                </div>
+              
+                    
+                <div id="resultBox"> RESULTS:<br>
+                <div id="result" style="border: 2px solid #FFD700; padding: 20px;"></div>    
+                </div>        
+ 
+       
+     
+              </div>
+          </div>
+  
+  
+          <p><a href="/"><button type="button" class="btn btn-warning">Retour</button></a></p>
+  
+         
+         
+      </div>
+  
+  
+    <!-- Testimonials -->
+    <section class="testimonials text-center">
+      <div class="container">
+        <h2 class="mb-5">Best Team</h2>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-1.jpg" alt="">
+              <h5>Ridy</h5>
+              <p class="font-weight-light mb-0">"This is fantastic! Thanks so much guys!"</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-2.jpg" alt="">
+              <h5>Thai</h5>
+              <p class="font-weight-light mb-0">"Bitcoin is amazing. I'm buying lands and farms with it."</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="../img/testimonials-3.jpg" alt="">
+              <h5>Sofiane</h5>
+              <p class="font-weight-light mb-0">"Thanks so much for making these free resources available to us!"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Call to Action -->
+    <section class="call-to-action text-white text-center">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-xl-9 mx-auto">
+            <h2 class="mb-4">Alyra - L'école blockchain</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <% include ./footer %>
+
+    <script data-main="./../main2" src="./../require.js"></script>
