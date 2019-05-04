@@ -40,7 +40,7 @@ const dec2hex = n => {
 
 };
 
-console.log(dec2hex(466321));
-console.log(dec2hex(131));
-console.log(dec2hex(643));
-console.log(dec2hex(255));
+dec2hex(466321);
+dec2hex(131);
+dec2hex(643);
+dec2hex(255);
