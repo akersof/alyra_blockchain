@@ -69,3 +69,5 @@ class BitcoinClient {
     }
 }
 
+const bc = new BitcoinClient();
+bc.getTransactionsByBlockHeight(101).then(console.log);
