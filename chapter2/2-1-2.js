@@ -1,8 +1,10 @@
-const MAX_TARGET = 0x00000000FFFF0000000000000000000000000000000000000000000000000000n;
+const MAX_TARGET = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
-const difficulty = bits => {
-    let coef = BigInt("0x" + bits.slice(2));
-    let exp = BigInt("0x" + bits.slice(0, 2));
-    let target = coef * 2n ** (8n * (exp-3n));
+const calculerDifficulte = (bits) => {
+    if(bits.toUpperCase().startsWith('0X'))
+        bits = bits.slice(2);
+    let coef = parseInt(bits.slice(2), 16);
+    let exp = parseInt(bits.slice(0, 2), 16);
+    let target = coef * Math.pow(2, (8 * (exp - 3)));
     return MAX_TARGET / target;
-};
+} ;
