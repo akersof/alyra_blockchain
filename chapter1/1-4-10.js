@@ -25,6 +25,8 @@ class BlockHeader{
 
     }
     from(hexStr) {
+        if(hexStr.toUpperCase().startsWith('0X'))
+            hexStr = hexStr.slice(2);
         let buff = Buffer.from(hexStr, 'hex');
         let index = 0;
         this.version = parseInt(le2be(buff.slice(index, VERSION_SIZE).toString('hex')));
