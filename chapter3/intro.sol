@@ -6,7 +6,7 @@ contract SceneOuverte {
     uint tour;
     //memory = this string doesn't exist int the blockchain and is stored in memory only
     function sInscrire(string memory nomDArtiste) public {
-        require (freeSlot >= 0);
+        require (freeSlot > 0);
         passagesArtistes[12 - freeSlot] = nomDArtiste;
         freeSlot--;
     }
