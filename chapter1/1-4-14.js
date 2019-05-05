@@ -67,6 +67,7 @@ class BlockHeader{
         return `${version}\n${versionHex}\n${prevBlocHash}\n${merkleRoot}\n${timeStamp}\n${date}\n${bits}\n${nonce}\n${hex}`;
     }
     checkPOW() {
+        //TODO DEMANDER A XAVIER A PROPOS DE TOUT CES LE BE... c'est un casse tete
         let blockHash = le2be(crypto.createHash('sha256').update(crypto.createHash('sha256')
                             .update(Buffer.from(this.hex, 'hex')).digest()).digest('hex'));
         let coef = BigInt("0x" + this.bits.slice(2));
