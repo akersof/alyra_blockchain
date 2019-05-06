@@ -1,0 +1,14 @@
+body {
+    font-family: 'ZCOOL Kuaile';
+    height: 100%;
+    font-size: 2em;
+}
+.my-color{
+    color: burlywood;
+}
+.container{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
