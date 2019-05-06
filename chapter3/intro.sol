@@ -9,6 +9,10 @@ contract SceneOuverte {
         require (freeSlot > 0);
         passagesArtistes[12 - freeSlot] = nomDArtiste;
         freeSlot--;
+        //alternative with if
+        //if(freeSlot > 0) {
+            //..etc
+        //}
     }
     function passerArtisteSuivant() public{
         tour++;
