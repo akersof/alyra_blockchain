@@ -1,0 +1,21 @@
+##install an react dapp based on a template
+1 embark new embark_react --template https://github.com/embark-framework/embark-create-react-dapp-template
+2 cd embark_react
+3 npm install, corriger le numero de version dans package.json de web3 npm install again
+4 embark simulator
+5 embark run -> testRpc appears the old name of ganache
+6 change solc version in embark.json
+
+geth vs ganache ?
+
+alternatie to embark truffe?
+
+1 frontend: react or vanilla
+2 library ether.js or web3.js
+3 wallet metamask (ledger, trezor etc)
+4 client: infura, Geth, partiy, etc
+5 Network: Mainnet, ropsten, localhost etc
+
+##react
+npx create-react-app todo
+
