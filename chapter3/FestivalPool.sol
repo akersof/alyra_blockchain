@@ -5,9 +5,11 @@ contract Management {
     using SafeMath for uint256;
     mapping (address => uint) managers;
     uint private costs;
+    uint dateFestival;
 
     constructor() internal {
         managers[msg.sender] = 100;
+        dateFestival = now;
     }
 
     function transferManage(address manager, uint parts) public {
@@ -34,6 +36,12 @@ contract Management {
 
     }
 
+    function getReward() public {
+        require(block.timestamp >= dateFestival + 2 weeks);
+        require(isManager(msg.sender));
+    msg.sender.transfer(address(this).balance)
+    }
+
 }
 
 contract FestivalPool is Management {
@@ -41,6 +49,10 @@ contract FestivalPool is Management {
     mapping(address => bool) mob; //mob = people going to festival
     uint remainTickets = 100;
     string[] public sponsors;
+
+    constructor() public {
+        dateFestival = now;
+    }
 
     function sponsor(string memory name) public payable {
         require(msg.value >= 30 ether, 'minimum 30 ethers for sponsoring');
