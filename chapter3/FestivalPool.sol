@@ -9,7 +9,9 @@ contract FestivalPool {
 
     function transferManage(address manager, uint parts) public {
         require(isManager(msg.sender), "you are not a manager.");
+        require(managers[msg.sender] >= parts);
         managers[manager] += parts;
+        managers[msg.sender] -= parts;
     }
 
     function isManager(address manager) public view returns(bool) {
