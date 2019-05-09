@@ -8,6 +8,7 @@ contract FestivalPool {
     }
 
     function transferManage(address manager, uint parts) public {
+        require(isManager(msg.sender), "you are not a manager.");
         managers[manager] += parts;
     }
 
