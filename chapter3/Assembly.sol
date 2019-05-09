@@ -1,3 +1,8 @@
+// TODO: create a member struct
+// TODO: The contract creator is no more and administrator but an ower his rights can't be revoked
+// TODO: administor election follows  democracy rules
+// TODO: apparently delete array[index] create gap inside array, find a way to solve this.
+
 pragma solidity ^0.5.7;
 contract Assembly {
     struct Proposal{
@@ -9,8 +14,12 @@ contract Assembly {
         mapping (address => bool) aVote;
     }
     Proposal[] proposals;
-
+    //should use a struct for members cause this is a big mess actually
     address[] members;
+    address[] administrators;
+    string public assemblyName;
+    mapping(address => uint) warning; //counting warning on user, is >= 2 put it in blacklist
+    address[] blackList;
 
     // internal constant
     int constant forVote = 1;
@@ -18,9 +27,65 @@ contract Assembly {
     int constant blankVote = 0;
     uint constant MAX_TIMESTAMP = 604800; // 1 week
 
+    constructor(string memory name) public{
+        assemblyName = name;
+        administrators.push(msg.sender);
+    }
+
+    //admin functions
+    function isAdmin(address user) public view returns(bool) {
+        for(uint i = 0; i < administrators.length; i++) {
+            if(administrators[i] == user) return true;
+        }
+        return false;
+    }
+
+    //all administrators can promote an address for admin rights
+    function addAdmin(address user) public {
+        require(isAdmin(msg.sender), 'you are not an administrator');
+        administrators.push(user);
+    }
+
+    //resgination
+    function resign() public {
+        require(isAdmin(msg.sender), 'you are not an administrator');
+        for(uint i = 0; i < administrators.length; ++i) {
+            if(administrators[i] == msg.sender) delete administrators[i];
+        }
+    }
+
+    function deleteProposal(uint indexProposal) public {
+        require(isAdmin(msg.sender), 'you are not an administrator');
+        require(indexProposal < proposals.length, "out of range index");
+        delete proposals[indexProposal];
+    }
+
+    //warn a user, if warning >= 2 delete it and put it in blackList
+    function warningUser(address user) public {
+        require(isAdmin(msg.sender), 'you are not an administrator');
+        require(isMember(user));
+        warning[user]++;
+        if(warning[user] >= 2) {
+            //put user in blackLists
+            blackList.push(user);
+            for(uint i = 0; i < members.length; ++i) {
+                if(members[i] == user) delete members[i];
+            }
+        }
+    }
+
+    //members functions
     function join() public {
         require(!isMember(msg.sender), "you are already a member");
+        require(!inBlackList(msg.sender), "you are in black list, you can't join anymore");
         members.push(msg.sender);
+    }
+
+    function inBlackList(address user) public view returns(bool) {
+        for(uint i = 0; i < blackList.length; i++) {
+            if(blackList[i] == user) return true;
+        }
+        return false;
     }
 
     function isMember(address user) public view returns(bool) {
