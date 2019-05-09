@@ -1,5 +1,8 @@
 pragma solidity ^0.5.7;
+import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-solidity/master/contracts/math/SafeMath.sol";
+
 contract Management {
+    using SafeMath for uint256;
     mapping (address => uint) managers;
     uint private costs;
 
@@ -24,7 +27,7 @@ contract Management {
         require(dest != address(0));
         require(amount > 0);
         dest.transfer(amount);
-        costs += amount;
+        costs.add(amount);
     }
 
     function () external payable {
@@ -34,6 +37,7 @@ contract Management {
 }
 
 contract FestivalPool is Management {
+    using SafeMath for uint256;
     mapping(address => bool) mob; //mob = people going to festival
     uint remainTickets = 100;
     string[] public sponsors;
