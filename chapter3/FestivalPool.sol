@@ -3,11 +3,19 @@ import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.so
 
 contract Associate {
     using SafeMath for uint256;
-
+    uint public creationDate;
+    uint constant public DURATION = 1 weeks;
+    uint public endDate;
+    uint constant internal MAX_PAY_BILL_PER_DAY = 10 ether;
+    mapping(uint => uint) payBillPerDay;
     mapping(address => uint) public associates;
+    uint private remaingParts = 100;
 
     constructor () internal {
         associates[msg.sender] = 100; //start with 100% shares
+
+        creationDate = now;
+        endDate = creationDate.add(DURATION);
     }
 
     modifier isAssociate(address user) {
@@ -39,27 +47,44 @@ contract Associate {
 
     modifier enoughCash(uint amount) {
         require(amount > 0, 'negative amount');
-        require(address(this).balance > amount, 'not enough ethers in smart contract');
+        require(address(this).balance >= amount, 'not enough ethers in smart contract');
         _;
     }
 
+    modifier maxExpense(uint amount) {
+        uint currentDay = (now - creationDate).div(60).div(60).div(24);
+        require(payBillPerDay[currentDay].add(amount) <= MAX_PAY_BILL_PER_DAY, "maximum ethers per day spent already.");
+        _;
+    }
+
+    modifier isFestivalFinished() {
+        require(now > endDate, 'festival is not ended yet.');
+        _;
+    }
 
     function payBill (address payable dst, uint amount) public
     isAssociate(msg.sender)
     noNullAddress(dst)
     enoughCash(amount)
+    maxExpense(amount)
     {
         dst.transfer(amount);
+        uint currentDay = (now - creationDate).div(60).div(60).div(24);
+        payBillPerDay[currentDay] += amount;
+    }
+
+    function getBenefit() public isAssociate(msg.sender) isFestivalFinished {
+        remaingParts.sub(associates[msg.sender]);
+        if(remaingParts == 0) selfdestruct(msg.sender);
+        uint percentage = uint256(100).div(associates[msg.sender]);
+        msg.sender.transfer(address(this).balance.div(percentage));
     }
 
 }
 
-contract FestivalPool is Associate {
+contract Festival is Associate {
     using SafeMath for uint256;
 
-    uint public creationDate;
-    uint constant public DURATION = 1 weeks;
-    uint public endDate;
     uint constant public MAX_TICKET = 500;
     uint public remaingTickets = MAX_TICKET;
     uint constant ticketPrice = 500 finney;
@@ -67,8 +92,7 @@ contract FestivalPool is Associate {
     string[] public sponsors;
 
     constructor() public {
-        creationDate = now;
-        endDate = creationDate.add(DURATION);
+
     }
 
 
