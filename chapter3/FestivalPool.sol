@@ -1,70 +1,103 @@
 pragma solidity ^0.5.7;
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-solidity/master/contracts/math/SafeMath.sol";
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract Management {
+contract Associate {
     using SafeMath for uint256;
-    mapping (address => uint) managers;
-    uint private costs;
-    uint dateFestival;
 
-    constructor() internal {
-        managers[msg.sender] = 100;
-        dateFestival = now;
+    mapping(address => uint) public associates;
+
+    constructor () internal {
+        associates[msg.sender] = 100; //start with 100% shares
     }
 
-    function transferManage(address manager, uint parts) public {
-        require(isManager(msg.sender), "you are not a manager.");
-        require(managers[msg.sender] >= parts);
-        managers[manager] += parts;
-        managers[msg.sender] -= parts;
+    modifier isAssociate(address user) {
+        require(associates[user] > 0 , 'user is not an associate');
+        _;
     }
 
-    function isManager(address manager) public view returns(bool) {
-        if(managers[manager] > 0) return true;
-        return false;
+    modifier isShareCorrect(uint equity) {
+        require(associates[msg.sender] >= equity, 'not enough equity');
+        _;
     }
 
-    function pay(address payable dest, uint amount) public {
-        require(isManager(msg.sender));
-        require(dest != address(0));
-        require(amount > 0);
-        dest.transfer(amount);
-        costs.add(amount);
+    function share(address associate, uint equity)  public
+    isAssociate(msg.sender)
+    isShareCorrect(equity)
+    {
+        associates[associate] += equity;
+        associates[msg.sender] -= equity;
     }
 
-    function () external payable {
-
+    function getBalance() public isAssociate(msg.sender) view returns (uint256){
+        return address(this).balance;
     }
 
-    function getReward() public {
-        require(block.timestamp >= dateFestival + 2 weeks);
-        require(isManager(msg.sender));
-    msg.sender.transfer(address(this).balance)
+    modifier noNullAddress(address payable dst) {
+        require(dst != address(0), 'dest is null address');
+        _;
+    }
+
+    modifier enoughCash(uint amount) {
+        require(amount > 0, 'negative amount');
+        require(address(this).balance > amount, 'not enough ethers in smart contract');
+        _;
+    }
+
+
+    function payBill (address payable dst, uint amount) public
+    isAssociate(msg.sender)
+    noNullAddress(dst)
+    enoughCash(amount)
+    {
+        dst.transfer(amount);
     }
 
 }
 
-contract FestivalPool is Management {
+contract FestivalPool is Associate {
     using SafeMath for uint256;
-    mapping(address => bool) mob; //mob = people going to festival
-    uint remainTickets = 100;
+
+    uint public creationDate;
+    uint constant public DURATION = 1 weeks;
+    uint public endDate;
+    uint constant public MAX_TICKET = 500;
+    uint public remaingTickets = MAX_TICKET;
+    uint constant ticketPrice = 500 finney;
+    mapping(address => uint) festivalgoers;
     string[] public sponsors;
 
     constructor() public {
-        dateFestival = now;
+        creationDate = now;
+        endDate = creationDate.add(DURATION);
     }
+
+
+    modifier isPriceCorrect(uint nbTickets) {
+        if(nbTickets == 0) nbTickets = 1;
+        require(msg.value >= ticketPrice.mul(nbTickets), 'not enough money sent');
+        _;
+    }
+
+    modifier hasEnoughTickets (uint nbTickets) {
+        require(remaingTickets >= nbTickets);
+        _;
+    }
+
+    //anonymous sponsors
+    function () external payable {}
 
     function sponsor(string memory name) public payable {
-        require(msg.value >= 30 ether, 'minimum 30 ethers for sponsoring');
+        require(msg.value >= 30 ether, 'at least 30');
         sponsors.push(name);
+
     }
 
-
-    function buyTicket() public payable {
-        require(!mob[msg.sender]);
-        require(msg.value >= 500 finney,"Place à 0.5 Ethers");
-        require(remainTickets > 0,"no more tickets");
-        mob[msg.sender] = true;
-        remainTickets--;
+    function buyTicket(uint nbTickets) public payable isPriceCorrect(nbTickets) hasEnoughTickets(nbTickets){
+        if(nbTickets == 0) nbTickets = 1;
+        festivalgoers[msg.sender] += nbTickets;
+        remaingTickets -= nbTickets;
+        //money back if too much money given... we are not thieves
+        if(msg.value > ticketPrice.mul(nbTickets)) msg.sender.transfer( msg.value.sub(ticketPrice.mul(nbTickets)));
     }
+
 }
