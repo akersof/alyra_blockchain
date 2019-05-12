@@ -18,8 +18,7 @@ contract Pulsation {
     //naive implemention of randomness using timestamp, sender address, and a nonce.
     //TODO: need to check with xavier about randomness
     function random() internal returns (uint) {
-        uint randomnumber = uint(keccak256(abi.encodePacked(now, msg.sender, nonce))) % 10;
-        nonce++;
+        uint randomnumber = uint(keccak256(abi.encodePacked(now, msg.sender, beat))) % 10;
         return randomnumber;
     }
 }
