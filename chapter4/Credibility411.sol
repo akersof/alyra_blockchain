@@ -22,8 +22,8 @@ contract Credibility {
     }
 
     function transfer(address dst, uint value) public hasEnoughCred(value) isStudent(dst) {
-        cred[msg.sender] -= value;
-        cred[dst] += value;
+        cred[msg.sender] = cred[msg.sender].sub(value);
+        cred[dst] = cred[dst].add(value);
     }
 
     function send(bytes32 hashHomeWork) public returns(uint) {
@@ -32,7 +32,7 @@ contract Credibility {
         if(homework.length == 1) reward = 30;
         else if(homework.length == 2) reward = 20;
         else reward = 10;
-        cred[msg.sender] += reward;
+        cred[msg.sender] = cred[msg.sender].add(reward);
         return reward;
     }
 
