@@ -1,0 +1,12 @@
+.container {
+    background-color: #ffa4a4;
+    margin: auto;
+    /*display:flex;
+    //flex-direction: column;*/
+}
+
+#body{
+    display: flex;
+    height: 600px;
+    width: 100%;
+}
