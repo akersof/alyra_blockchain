@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    background-color: whitesmoke;
+}
+.navbar {
+    min-height: 30vh;
+    background-color: #333;
+    color: whitesmoke;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footbar {
+    min-height: 30vh;
+    background-color: #333;
+    color: whitesmoke;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.todo-list {
+    background-color: white;
+    margin: auto;
+    width: 50%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    box-shadow:
+        /*The top layer shadow*/
+            0 1px 1px rgba(0,0,0,0.15),
+            0 10px 0 -5px #eee,
+            0 10px 0 -4px rgba(0,0,0,0.15),
+            0 20px 0 -10px #eee,
+            0 20px 1px -9px rgba(0,0,0,0.15);
+}
+
+.todo-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 30px 20px 0;
+    width: 70%;
+    border-bottom: 1px solid #cecece;
+}
+
+input[type=checkbox] {
+    margin-right: 10px;
+}
