@@ -7,7 +7,6 @@ function Dashboard(props) {
     return(
         <div>
             <Profile/>
-            <Offer />
         </div>
     );
 }
