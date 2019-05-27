@@ -1,17 +1,19 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import {useMetaMask} from "./hooks/metamask";
+import {Dapp} from "./components/dapp";
+import DappContext from "./dappContext";
 
 function App(props) {
-  const [address, provider, network, balance] = useMetaMask([]);
-
+    const metaConnection = useMetaMask();
+    const [dapp, setDapp] = useState(metaConnection);
+    useEffect(() => {
+        setDapp(metaConnection);
+    }, [metaConnection]);
   return (
-    <div className="container">
-      <h1>Market Jobs Place</h1>
-      <h3>Hello {address}</h3>
-      <p>network: {network}</p>
-      <p>balance: {balance}</p>
-    </div>
+      <DappContext.Provider value={dapp}>
+          <Dapp className="App"/>
+      </DappContext.Provider>
   );
 }
 
