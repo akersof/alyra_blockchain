@@ -5,23 +5,14 @@ import Footer from "./footer";
 import Registration from "./registration";
 import Dashboard from "./dashboard";
 
+//hooks used
+import {useIsRegistered} from "../hooks/interactContract";
+
 
 export const Dapp = (props) => {
     const dapp = useContext(DappContext);
-    const [isReady, setIsReady] = useState(false);
-    const [isRegistered, setRegistered] = useState(false);
-    useEffect(() =>{
-        if(dapp && Object.keys(dapp).length > 0)
-            setIsReady(true);
-        }, [dapp]);
-    useEffect( () => {
-        if(isReady)
-            (async () => {
-                const registered = await dapp.contract.isRegistered(dapp.address);
-                setRegistered(registered);
-            })();
-    }, [isReady, dapp.address, dapp.contract]);
-    if(isReady) {
+    const [isRegistered, isLoading] = useIsRegistered(dapp);
+    if(!isLoading) {
         return(
             <div>
                 <Header />
@@ -30,5 +21,5 @@ export const Dapp = (props) => {
             </div>
         );
     }
-    return (<div className="container">{isReady ? dapp.contract.address : "Connection with metamask..."}</div>);
+   return (<div className="container">{isLoading ? dapp.contract.address : "Connection with metamask..."}</div>);
 };

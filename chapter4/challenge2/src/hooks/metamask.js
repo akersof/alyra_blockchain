@@ -4,6 +4,7 @@ import {CONTRACT_ADDRESS, CONTRACT_ABI} from '../contractData.js';
 
 export const useMetaMask = () => {
     const [dapp, setDapp] = useState({});
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         const connect = async () => {
             //can use then for gathering address and provider at the same time
@@ -22,10 +23,10 @@ export const useMetaMask = () => {
                 contract: _contract,
                 signer: _signer
             });
-            console.log(dapp);
+            setLoading(false);
         };
         connect();
 
     }, []);
-    return dapp;
+    return [dapp, loading];
 };

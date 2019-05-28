@@ -5,14 +5,10 @@ import {Dapp} from "./components/dapp";
 import DappContext from "./dappContext";
 
 function App(props) {
-    const metaConnection = useMetaMask();
-    const [dapp, setDapp] = useState(metaConnection);
-    useEffect(() => {
-        setDapp(metaConnection);
-    }, [metaConnection]);
+    const [dapp, loading] = useMetaMask();
   return (
       <DappContext.Provider value={dapp}>
-          <Dapp className="App"/>
+          {loading ? "loading..." : <Dapp className="App"/>}
       </DappContext.Provider>
   );
 }

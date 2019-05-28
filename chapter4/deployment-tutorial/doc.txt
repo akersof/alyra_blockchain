@@ -1,0 +1,37 @@
+solc --bin contracts/mycontracts.sol > contract.bin
+solc --abi contracts/mycrontacts.sol > abi.json
+
+solc -o build --bin --abi contracts/mycontrats.sol
+
+npm init, puis creater une entrée compile avec solc dans scripts
+une entrée clean aussi pour rm build/*
+
+
+npm install ethereum-waffle
+
+npx waffle
+
+ganache --cli -v pour le mode verbeux
+
+
+npm install -g truffle
+
+mkdir project && cd project
+
+truffle init
+
+truffle unbox petshopbox
+
+minimum conf:
+modfule.expoert = {
+    networks: {
+        hosts:1270.0.1;
+        port 85..
+        network_id: "*"
+    }
+}
+
+il faut copier son contract dans migrations,
+puit creer un script de deployement avec le chiffre 2 devant, apres le 1;
+https://truffeframework.com/boxes
+
